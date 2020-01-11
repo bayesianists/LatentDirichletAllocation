@@ -48,6 +48,9 @@ def extract_text(file_name):
 
 
 def join_document():
+    """
+    :return: List of Document objects
+    """
     documents = []
     i = 0
     for file in os.listdir(directory):
@@ -60,6 +63,10 @@ def join_document():
 
 
 def create_vocabulary(documents):
+    """
+    :param documents: List of document objects
+    :return: List of words  (Vocabulary)
+    """
     vocabulary = defaultdict(int)
     for d in documents:
         for word in re.sub('[^A-Za-z]+', ' ', d.text).split(' '):
@@ -69,7 +76,13 @@ def create_vocabulary(documents):
     return vocabulary
 
 
-def write_list_to_file(dictionary, maxint=10000):
+def write_list_to_file(dictionary, maxint=20):
+    """
+    Stores vocabulary in file 'vocabulary.txt'
+    :param dictionary: Vocabulary with frequency for each word
+    :param maxint: maximum number of words allowed
+    :return: nothing
+    """
     f = open("vocabulary.txt", "w")
     i = 0
     for word, frequency in sorted(dictionary.items(), key=lambda x: x[1], reverse=True):
@@ -80,6 +93,12 @@ def write_list_to_file(dictionary, maxint=10000):
 
 
 def get_word_vector(word, vocab):
+    """
+    Creates a word vector
+    :param word: word that is to be transformed into vector
+    :param vocab: Vocabulary
+    :return: Word vector
+    """
     vector = [0] * len(vocab)
     if word in vocab:
         vector[vocab.index(word)] = 1
@@ -87,12 +106,19 @@ def get_word_vector(word, vocab):
 
 
 def get_vocab():
+    """
+    :return: Vocabulary as a vector of words
+    """
     with open('vocabulary.txt') as f:
         lines = [line.rstrip() for line in f]
         return lines
 
 
 def make_corpus(vocabulary):
+    """
+    :param vocabulary: Vocabulary as vector of words
+    :return: Corpus
+    """
     documents = []
     for doc in join_document():
         document = []
@@ -100,6 +126,7 @@ def make_corpus(vocabulary):
             word = word.casefold()
             document.append(get_word_vector(word, vocabulary))
         documents.append(document)
+    return documents
 
 
 make_corpus(get_vocab())
