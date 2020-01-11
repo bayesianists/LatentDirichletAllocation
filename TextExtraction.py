@@ -1,4 +1,6 @@
 import re
+from collections import defaultdict
+
 from bs4 import BeautifulSoup
 import os
 
@@ -54,19 +56,51 @@ def join_document():
         if filename.endswith(".sgm"):
             print(i)
             documents += extract_text(filename)
+    return documents
 
 
 def create_vocabulary(documents):
-    vocabulary = []
+    vocabulary = defaultdict(int)
     for d in documents:
         for word in re.sub('[^A-Za-z]+', ' ', d.text).split(' '):
             word = word.casefold()
-            if word not in vocabulary and word != 'reuter':
-                vocabulary.append(word)
+            if word != 'reuter' and word != '':
+                vocabulary[word] += 1
     return vocabulary
 
 
-def write_list_to_file(list):
+def write_list_to_file(dictionary, maxint=10000):
     f = open("vocabulary.txt", "w")
-    for element in list:
-        f.write(element + '\n')
+    i = 0
+    for word, frequency in sorted(dictionary.items(), key=lambda x: x[1], reverse=True):
+        if i > maxint:
+            return
+        f.write(word + '\n')
+        i += 1
+
+
+def get_word_vector(word, vocab):
+    vector = [0] * len(vocab)
+    if word in vocab:
+        vector[vocab.index(word)] = 1
+    return vector
+
+
+def get_vocab():
+    with open('vocabulary.txt') as f:
+        lines = [line.rstrip() for line in f]
+        return lines
+
+
+def make_corpus(vocabulary):
+    documents = []
+    for doc in join_document():
+        document = []
+        for word in re.sub('[^A-Za-z]+', ' ', doc.text).split(' '):
+            word = word.casefold()
+            document.append(get_word_vector(word, vocabulary))
+        documents.append(document)
+
+
+make_corpus(get_vocab())
+# write_list_to_file(create_vocabulary(join_document()))
