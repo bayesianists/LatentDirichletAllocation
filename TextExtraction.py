@@ -1,3 +1,4 @@
+import re
 from bs4 import BeautifulSoup
 import os
 
@@ -44,11 +45,28 @@ def extract_text(file_name):
     return documents
 
 
-documents = []
+def join_document():
+    documents = []
+    i = 0
+    for file in os.listdir(directory):
+        i += 1
+        filename = os.fsdecode(file)
+        if filename.endswith(".sgm"):
+            print(i)
+            documents += extract_text(filename)
 
-for file in os.listdir(directory):
-    filename = os.fsdecode(file)
-    if filename.endswith(".sgm"):
-        documents += extract_text(filename)
 
-# print(documents[1090]) 
+def create_vocabulary(documents):
+    vocabulary = []
+    for d in documents:
+        for word in re.sub('[^A-Za-z]+', ' ', d.text).split(' '):
+            word = word.casefold()
+            if word not in vocabulary and word != 'reuter':
+                vocabulary.append(word)
+    return vocabulary
+
+
+def write_list_to_file(list):
+    f = open("vocabulary.txt", "w")
+    for element in list:
+        f.write(element + '\n')
