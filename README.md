@@ -1,2 +1,1 @@
-# LatentDirichletAllocation
-LDA
+# Latent Dirichlet Allocation
