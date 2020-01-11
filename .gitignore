@@ -129,5 +129,8 @@ dmypy.json
 .pyre/
 
 # ignore xml
-.xml
-.iml
+*.xml
+*.iml
+
+
+.idea
