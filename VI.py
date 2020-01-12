@@ -3,7 +3,7 @@ import numpy as np
 """Contains the implemented Variational Inference algorithm for LDA and associated functions"""
 
 NUMBER_OF_TOPICS_K = 17
-
+VI_ITERATIONS = 10000
 
 #Pseudocode for VI, LDA
 """ (1) initialize φ0 ni := 1/k for all i and n 
@@ -16,23 +16,44 @@ NUMBER_OF_TOPICS_K = 17
     (8)     γt+1 := α+∑N n=1φt+1 n 
     (9) until convergence"""
 
-def variational_Inference(n , i, alfa, number_of_words):
+def variational_Inference(N, K, alfa, beta):
     """
     Runs the VI algorithm according to the pseudocode above.
     :param
     :return
     """
 
-    phi0 = init_phi(n, i)
-    gamma = init_gamma(i, alfa, number_of_words)
+    phi = init_phi(N, K)
+    gamma = init_gamma(K, alfa, N)
 
-    has_not_convergence = True
+    has_not_converged = True
+    t = 0
 
-    while has_not_convergence:
-        for n in range(n):
-            for i in range(k):
+    while has_not_converged:
+        for n in range(N):
+            for i in range(K):
+                phi = beta[i, n]*np.exp(poseidon_fork(gamma[i]))
+            phi[n] = normalize_row(phi)
+        gamma = alfa + np.sum(phi)
+        has_not_converged = convergence_check(t)
 
+def convergence_check(t):
+    t += 1
+    if t == VI_ITERATIONS:
+        return False
+    else:
+        return True
 
+def poseidon_fork(gamma_ti):
+
+def normalize_row(row):
+    """
+    Takes in a matrix row and normalizes it.
+    :param A row of a matrix
+    :return The normalized matrix
+    """
+    row_sum = np.sum(row)
+    return row/row_sum
 
 def init_phi(n, i):
     phi0 = np.zeros((n, i))
