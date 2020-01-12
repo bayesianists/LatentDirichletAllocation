@@ -5,6 +5,9 @@ import numpy as np
 NUMBER_OF_TOPICS_K = 17
 VI_ITERATIONS = 10000
 
+phi = 0
+gamma = 0
+
 #Pseudocode for VI, LDA
 """ (1) initialize φ0 ni := 1/k for all i and n 
     (2) initialize γi := αi+N/k for all i 
@@ -34,8 +37,11 @@ def variational_Inference(N, K, alfa, beta):
             for i in range(K):
                 phi = beta[i, n]*np.exp(poseidon_fork(gamma[i]))
             phi[n] = normalize_row(phi)
-        gamma = alfa + np.sum(phi)
+        gamma = sum_columns_alfa(alfa, phi)
         has_not_converged = convergence_check(t)
+
+def sum_columns_alfa(alfa, phi):
+    return alfa + np.sum(phi, axis=1)
 
 def convergence_check(t):
     t += 1
