@@ -10,6 +10,10 @@ VI_ITERATIONS = 10000
 phi = 0
 gamma = 0
 
+def beta(phi, corpus):
+phi * corpus
+
+
 # Pseudocode for VI, LDA
 """ (1) initialize φ0 ni := 1/k for all i and n 
     (2) initialize γi := αi+N/k for all i 
@@ -73,3 +77,5 @@ def init_phi(n, i):
 
 def init_gamma(i, alfa, number_of_words):
     return alfa + number_of_words
+
+

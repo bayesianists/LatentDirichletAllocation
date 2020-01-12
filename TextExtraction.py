@@ -130,4 +130,4 @@ def make_corpus(vocabulary):
 
 
 #write_list_to_file(create_vocabulary(join_document()))
-print(make_corpus(get_vocab()))
+#print(make_corpus(get_vocab()))
