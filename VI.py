@@ -1,5 +1,7 @@
 import numpy as np
 import TextExtraction
+import scipy.special as sp
+
 """Contains the implemented Variational Inference algorithm for LDA and associated functions"""
 
 NUMBER_OF_TOPICS_K = 17
@@ -8,7 +10,7 @@ VI_ITERATIONS = 10000
 phi = 0
 gamma = 0
 
-#Pseudocode for VI, LDA
+# Pseudocode for VI, LDA
 """ (1) initialize φ0 ni := 1/k for all i and n 
     (2) initialize γi := αi+N/k for all i 
     (3) repeat 
@@ -18,6 +20,7 @@ gamma = 0
     (7)         normalize φt+1 n to sum to 1. 
     (8)     γt+1 := α+∑N n=1φt+1 n 
     (9) until convergence"""
+
 
 def variational_Inference(N, K, alfa, beta):
     """
@@ -35,13 +38,15 @@ def variational_Inference(N, K, alfa, beta):
     while has_not_converged:
         for n in range(N):
             for i in range(K):
-                phi = beta[i, n]*np.exp(poseidon_fork(gamma[i]))
+                phi = beta[i, n] * np.exp(sp.digamma(gamma[i]))
             phi[n] = normalize_row(phi)
         gamma = sum_columns_alfa(alfa, phi)
         has_not_converged = convergence_check(t)
 
+
 def sum_columns_alfa(alfa, phi):
     return alfa + np.sum(phi, axis=1)
+
 
 def convergence_check(t):
     t += 1
@@ -50,7 +55,6 @@ def convergence_check(t):
     else:
         return True
 
-def poseidon_fork(gamma_ti):
 
 def normalize_row(row):
     """
@@ -59,11 +63,13 @@ def normalize_row(row):
     :return The normalized matrix
     """
     row_sum = np.sum(row)
-    return row/row_sum
+    return row / row_sum
+
 
 def init_phi(n, i):
     phi0 = np.zeros((n, i))
     return phi0 + 1 / NUMBER_OF_TOPICS_K
+
 
 def init_gamma(i, alfa, number_of_words):
     return alfa + number_of_words
