@@ -1,6 +1,6 @@
 import re
 from collections import defaultdict
-
+import numpy as np
 from bs4 import BeautifulSoup
 import os
 
@@ -76,7 +76,7 @@ def create_vocabulary(documents):
     return vocabulary
 
 
-def write_list_to_file(dictionary, maxint=20):
+def write_list_to_file(dictionary, maxint=1000):
     """
     Stores vocabulary in file 'vocabulary.txt'
     :param dictionary: Vocabulary with frequency for each word
@@ -99,7 +99,7 @@ def get_word_vector(word, vocab):
     :param vocab: Vocabulary
     :return: Word vector
     """
-    vector = [0] * len(vocab)
+    vector = np.zeros((len(vocab)))
     if word in vocab:
         vector[vocab.index(word)] = 1
     return vector
@@ -125,9 +125,9 @@ def make_corpus(vocabulary):
         for word in re.sub('[^A-Za-z]+', ' ', doc.text).split(' '):
             word = word.casefold()
             document.append(get_word_vector(word, vocabulary))
-        documents.append(document)
-    return documents
+        documents.append(np.array(document))
+    return np.array(documents)
 
 
-make_corpus(get_vocab())
-# write_list_to_file(create_vocabulary(join_document()))
+#write_list_to_file(create_vocabulary(join_document()))
+print(make_corpus(get_vocab()))
