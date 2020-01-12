@@ -1,5 +1,5 @@
 import numpy as np
-
+import TextExtraction
 """Contains the implemented Variational Inference algorithm for LDA and associated functions"""
 
 NUMBER_OF_TOPICS_K = 17
