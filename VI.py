@@ -2,6 +2,7 @@ import numpy as np
 # import TextExtraction
 from TextExtraction import get_vocab, make_corpus
 import scipy.special as sp
+import scipy.signal as ss
 
 """Contains the implemented Variational Inference algorithm for LDA and associated functions"""
 
@@ -12,11 +13,11 @@ phi = 0
 gamma = 0
 
 
-def beta_i_j(phi, document, i, j):
+def beta_i_j(phi, documents, i, j):
     s = 0
-    for d in range(len(document)):
-        for n in range(len(document[0])):
-            s += phi[d][n][i] * (document[d][n] ** j)
+    for d in range(len(documents)):
+        for n in range(len(documents[0])):
+            s += phi[d][n][i] * (documents[d][n] ** j)
 
     return s
 
@@ -148,6 +149,33 @@ def init_params(corpus, V):
     return phi, gamma, alfa, beta
 '''
 
+def hessian_inverse(alfa, document):
+    N = len(document)
+
+    z = N * sp.polygamma(1, np.sum(alfa))
+
+    Q = np.zeros(NUM_TOPICS_K)
+    for k in range(NUM_TOPICS_K):
+        Q[k] = -N*sp.polygamma(1, np.sum(alfa))
+    Q = np.diag(Q)
+
+    id_matrix = np.diag(np.array(NUM_TOPICS_K))
+    inv_Q = np.linalg.inv(Q)
+    numerator = (inv_Q@id_matrix@np.transpose(inv_Q)@inv_Q)
+    denominator = (1/z + np.transpose(id_matrix)@inv_Q@np.transpose(id_matrix))
+    return inv_Q - numerator/denominator
+
+
+def max_step(alfa, beta, phi, V, corpus):
+    for i in range(NUM_TOPICS_K):
+        for j in range(V):
+            beta[i][j] = beta_i_j(phi, corpus, i, j)
+
+    for docIdx in range(len(corpus)):
+        alfa[docIdx] = alfa[docIdx] - hessian_inverse(alfa[docIdx], corpus[docIdx])
+
+    return alfa, beta
+
 
 def variational_expectation_maximization():
     vocab = get_vocab()
@@ -167,5 +195,5 @@ def variational_expectation_maximization():
         phi.append(phi_doc)
         gamma.append(gamma_doc)
 
-    #Maximazation step
-    beta_i_j(phi, )
+    # Maximization step
+    alfa, beta = max_step(alfa, beta, phi, V)
