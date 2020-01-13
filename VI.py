@@ -1,10 +1,11 @@
 import numpy as np
-import TextExtraction
+# import TextExtraction
+from TextExtraction import get_vocab, make_corpus
 import scipy.special as sp
 
 """Contains the implemented Variational Inference algorithm for LDA and associated functions"""
 
-NUMBER_OF_TOPICS_K = 17
+NUM_TOPICS_K = 17
 VI_ITERATIONS = 10000
 
 phi = 0
@@ -32,26 +33,37 @@ def beta_i_j(phi, document, i, j):
     (9) until convergence"""
 
 
-def variational_Inference(N, K, alfa, beta):
+# Called once per doc
+def variational_inference(N, alfa, beta):
     """
     Runs the VI algorithm according to the pseudocode above.
     :param
     :return
     """
 
-    phi = init_phi(N, K)
-    gamma = init_gamma(K, alfa, N)
+    '''
+    phi = init_phi(N)
+    gamma = init_gamma(NUM_TOPICS_K, alfa, N)
+    '''
+
+    vocab = get_vocab()
+    V = len(vocab)
+    corpus = make_corpus(get_vocab())
+    NUM_DOCS = len(corpus)
+    phi, gamma, alfa, beta = init_params(corpus, V)
 
     has_not_converged = True
     t = 0
 
     while has_not_converged:
         for n in range(N):
-            for i in range(K):
+            for i in range(NUM_TOPICS_K):
                 phi = beta[i, n] * np.exp(sp.digamma(gamma[i]))
             phi[n] = normalize_row(phi)
         gamma = sum_columns_alfa(alfa, phi)
         has_not_converged = convergence_check(t)
+
+    return phi, gamma
 
 
 def sum_columns_alfa(alfa, phi):
@@ -76,10 +88,84 @@ def normalize_row(row):
     return row / row_sum
 
 
-def init_phi(n, i):
-    phi0 = np.zeros((n, i))
-    return phi0 + 1 / NUMBER_OF_TOPICS_K
+# for one document
+def init_phi(N):
+    phi0 = np.zeros((N, NUM_TOPICS_K))
+    return phi0 + 1 / NUM_TOPICS_K
 
 
-def init_gamma(i, alfa, number_of_words):
-    return alfa + number_of_words
+def init_gamma(alfa, N):
+    return alfa + N / NUM_TOPICS_K
+
+
+# once for each document
+def init_beta(V):
+    beta = []
+    for i in range(NUM_TOPICS_K):
+        beta.append([1 / V] * V)
+    return beta
+
+
+def init_alfa_beta(V):
+    alfa = [0.5] * NUM_TOPICS_K
+    beta = init_beta(V)
+    return alfa, beta
+
+
+def init_phi_gamma(N, alfa):
+    phi = init_phi(N)
+    gamma = init_gamma(alfa, N)
+    return phi, gamma
+
+
+'''
+def init_params_one_doc(doc, V):
+    N = len(doc)
+    phi = init_phi(N)
+    alfa = [0.5] * NUM_TOPICS_K
+    beta = init_beta(V)
+    gamma = init_gamma(alfa, N)
+
+    return phi, gamma, alfa, beta
+'''
+
+'''
+def init_params(corpus, V):
+    NUM_DOCS = len(corpus)
+    # Initialization
+    phi = []  # M * N * k
+    gamma = []  # M * k
+    alfa = []  # M * k
+    beta = []  # M * k * V
+    for docIdx in range(NUM_DOCS):
+        doc = corpus[docIdx]
+        N = len(doc)
+        phi.append(init_phi(N))
+        alfa.append([0.5] * NUM_TOPICS_K)
+        beta.append(init_beta(V))
+        gamma.append(init_gamma(alfa[docIdx], N))
+
+    return phi, gamma, alfa, beta
+'''
+
+
+def variational_expectation_maximization():
+    vocab = get_vocab()
+    V = len(vocab)
+    corpus = make_corpus(get_vocab())
+    NUM_DOCS = len(corpus)
+    # phi, gamma, alfa, beta = init_params(corpus, V)
+    alfa, beta = init_alfa_beta(V)
+
+    # phi, gamma, for each doc in list
+    phi = []
+    gamma = []
+    for docIdx in range(NUM_DOCS):
+        doc = corpus[docIdx]
+        N = np.size(doc, axis=0)  # TODO DOUBLE CHECK
+        phi_doc, gamma_doc = variational_inference(N, alfa, beta)
+        phi.append(phi_doc)
+        gamma.append(gamma_doc)
+
+    #Maximazation step
+    beta_i_j(phi, )
