@@ -160,24 +160,26 @@ def hessian_inverse_gradient(alfa, document, theta_average_k, M):
     z = N * sp.polygamma(1, np.sum(alfa))
 
     Q = np.zeros(NUM_TOPICS_K)
+    gradient = np.array(NUM_TOPICS_K)
+    alfa_sum = np.sum(alfa)
     for k in range(NUM_TOPICS_K):
         Q[k] = -N*sp.polygamma(1, np.sum(alfa))
+        gradient[k] = gradient_k(theta_average_k, alfa[k], alfa_sum, N)
 
     #id_matrix = np.diag(np.array(NUM_TOPICS_K))
-    #inv_Q = np.linalg.inv(Q)
-    hessian_inverse_gradient = np.array([])
-    alfa_sum = np.sum(alfa)
+    inv_Q = np.linalg.inv(Q)
     denominator = 0
     numerator = 0
+    """
     for j in range(NUM_TOPICS_K):
-        denominator += gradient_k(theta_average_k, alfa[j], alfa_sum, M)/Q[j]
+        denominator += gradient[k]/Q[j]
         numerator += 1/Q[j]
-    b = numerator/denominator
+    """
+    denominator += gradient / Q
+    numerator += inv_Q
+    b = numerator/(denominator + 1/z)
 
-    for j in range(NUM_TOPICS_K):
-        hessian_inverse_gradient[j] = (gradient_k(theta_average_k, alfa[j], alfa_sum, M) - b)/Q[j]
-    
-    return hessian_inverse_gradient
+    return (gradient - b)/Q
 
 
 def max_step(alfa, beta, phi, V, corpus):
