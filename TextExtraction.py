@@ -33,7 +33,7 @@ def extract_text(file_name):
     soup = BeautifulSoup(data)
     contents = soup.findAll('reuters')
     for content in contents:
-        if content['topics'] != "NO":
+        if content['topics']:
             topic = content.findAll('topics')
             Ds = topic[0].findAll('d')
             topics = []
