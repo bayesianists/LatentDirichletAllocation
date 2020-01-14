@@ -129,5 +129,5 @@ def make_corpus(vocabulary):
     return np.array(documents)
 
 
-write_list_to_file(create_vocabulary(join_document()))
+#write_list_to_file(create_vocabulary(join_document()))
 #print(make_corpus(get_vocab()))
