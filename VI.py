@@ -149,8 +149,8 @@ def init_params(corpus, V):
 
 # Written in the context of a single document
 # Uses natural logarithm
-def gradient_k(theta_average_k, alfa_k, alfa_sum, N):
-    return N * (sp.psi(alfa_sum) - sp.psi(alfa_k) + np.log(theta_average_k))
+def gradient_k(alfa_k, alfa_sum, N):
+    return N * (sp.digamma(alfa_sum) - sp.digamma(alfa_k) + np.log(alfa_k/alfa_sum))
 
 
 def hessian_inverse_gradient(alfa, document, theta_average_k, M):
