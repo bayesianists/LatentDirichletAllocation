@@ -5,13 +5,15 @@ import scipy.special as sp
 
 """Contains the implemented Variational Inference algorithm for LDA and associated functions"""
 
-NUM_TOPICS_K = 17
-VI_ITERATIONS = 5
+NUM_TOPICS_K = 2
+VI_ITERATIONS = 1
 EM_ITERATIONS = 5
 
 
 def beta_i_j(phi, documents, i, j):
     s = 0
+    print(np.array(phi).shape)
+    # TODO GETTING THEM ERRORS!!! OOGABOOGA
     for d in range(len(documents)):
         for n in range(len(documents[0])):
             s += phi[d][n][i] * (documents[d][n] ** j)
@@ -32,50 +34,42 @@ def beta_i_j(phi, documents, i, j):
 
 
 # Called once per doc
-def variational_inference(N, alpha, beta, corpus, V):
+def variational_inference(N, alpha, beta, doc):
     """
     Runs the VI algorithm according to the pseudocode above.
     :param
     :return
     """
 
-    NUM_DOCS = len(corpus)
     phi, gamma = init_phi_gamma(N, alpha)
 
-    has_not_converged = True
+    has_converged = False
     t = 0
 
-    while has_not_converged:
+    while not has_converged:
         for n in range(N):
             for i in range(NUM_TOPICS_K):
-                phi = beta[i, n] * np.exp(sp.digamma(gamma[i]))
-            phi[n] = normalize_row(phi)
-        gamma = sum_columns_phi_plus_alpha(alpha, phi)
-        has_not_converged = convergence_check(t)
+                nonZeroes = np.nonzero(doc[n])
+                betaVal = 0.0001
+                if np.size(nonZeroes) > 0:
+                    betaVal = beta[i][nonZeroes[0]]
+
+                phi[n][i] = betaVal * np.exp(sp.digamma(gamma[i]))
+            phi[n] /= np.sum(phi[n])
+        gamma = sum_rows_phi_plus_alpha(alpha, phi)
+
+        t += 1
+        has_converged = convergence_check(t)
 
     return phi, gamma
 
 
-def sum_columns_phi_plus_alpha(alpha, phi):
-    return alpha + np.sum(phi, axis=1)
+def sum_rows_phi_plus_alpha(alpha, phi):
+    return alpha + np.sum(phi, axis=0)
 
 
 def convergence_check(t):
-    t += 1
-    if t == VI_ITERATIONS:
-        return False
-    else:
-        return True
-
-
-def normalize_row(row):
-    """
-    Takes in a matrix row and normalizes it.
-    :param A row of a matrix
-    :return The normalized matrix
-    """
-    row_sum = np.sum(row)
-    return row / row_sum
+    return t == VI_ITERATIONS
 
 
 # for one document
@@ -94,15 +88,6 @@ def init_beta(V):
     for i in range(NUM_TOPICS_K):
         beta.append(np.array([1 / V] * V))
     return np.array(beta)
-
-
-'''
-def init_theta(M):
-    theta = []
-    for i in range(NUM_TOPICS_K):
-        theta.append([1 / M] * M)
-    return theta
-'''
 
 
 def init_alpha_beta(V):
@@ -163,19 +148,6 @@ def max_step(alpha, beta, phi, V, corpus):
     return alpha, beta
 
 
-'''
-def row_averages(theta, M):
-    row_averages = np.array(NUM_TOPICS_K)
-    for k in range(NUM_TOPICS_K):
-        sum = 0
-        for d in range(M):
-            sum += theta[d][k] / M
-
-        row_averages[k] = sum
-    return row_averages
-'''
-
-
 def variational_expectation_maximization():
     vocab = get_vocab()
     V = len(vocab)
@@ -188,13 +160,15 @@ def variational_expectation_maximization():
     gamma = []
 
     for emStep in range(EM_ITERATIONS):
+        print("EM-step:", emStep)
         # phi, gamma, for each doc in list
         phi = []
         gamma = []
         for docIdx in range(NUM_DOCS):
+            print("doxIdx E-step:", docIdx)
             doc = corpus[docIdx]
             N = np.size(doc, axis=0)
-            phi_doc, gamma_doc = variational_inference(N, alpha, beta, corpus, V)
+            phi_doc, gamma_doc = init_phi_gamma(N, alpha)  # variational_inference(N, alpha, beta, doc)
             phi.append(phi_doc)
             gamma.append(gamma_doc)
 
