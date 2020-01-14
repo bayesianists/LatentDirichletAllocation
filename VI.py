@@ -33,7 +33,7 @@ def beta_i_j(phi, documents, i, j):
 
 
 # Called once per doc
-def variational_inference(N, alfa, beta, corpus, V):
+def variational_inference(N, alpha, beta, corpus, V):
     """
     Runs the VI algorithm according to the pseudocode above.
     :param
@@ -41,7 +41,7 @@ def variational_inference(N, alfa, beta, corpus, V):
     """
 
     NUM_DOCS = len(corpus)
-    phi, gamma = init_phi_gamma(N, alfa)
+    phi, gamma = init_phi_gamma(N, alpha)
 
     has_not_converged = True
     t = 0
@@ -51,14 +51,14 @@ def variational_inference(N, alfa, beta, corpus, V):
             for i in range(NUM_TOPICS_K):
                 phi = beta[i, n] * np.exp(sp.digamma(gamma[i]))
             phi[n] = normalize_row(phi)
-        gamma = sum_columns_alfa(alfa, phi)
+        gamma = sum_columns_alpha(alpha, phi)
         has_not_converged = convergence_check(t)
 
     return phi, gamma
 
 
-def sum_columns_alfa(alfa, phi):
-    return alfa + np.sum(phi, axis=1)
+def sum_columns_alpha(alpha, phi):
+    return alpha + np.sum(phi, axis=1)
 
 
 def convergence_check(t):
@@ -85,8 +85,8 @@ def init_phi(N):
     return phi0 + 1 / NUM_TOPICS_K
 
 
-def init_gamma(alfa, N):
-    return alfa + N / NUM_TOPICS_K
+def init_gamma(alpha, N):
+    return alpha + N / NUM_TOPICS_K
 
 
 # once for each document
@@ -104,66 +104,35 @@ def init_theta(M):
     return theta
 
 
-def init_alfa_beta(V):
-    alfa = [0.5] * NUM_TOPICS_K
+def init_alpha_beta(V):
+    alpha = [0.5] * NUM_TOPICS_K
     beta = init_beta(V)
-    return alfa, beta
+    return alpha, beta
 
 
-def init_phi_gamma(N, alfa):
+def init_phi_gamma(N, alpha):
     phi = init_phi(N)
-    gamma = init_gamma(alfa, N)
+    gamma = init_gamma(alpha, N)
     return phi, gamma
-
-
-'''
-def init_params_one_doc(doc, V):
-    N = len(doc)
-    phi = init_phi(N)
-    alfa = [0.5] * NUM_TOPICS_K
-    beta = init_beta(V)
-    gamma = init_gamma(alfa, N)
-
-    return phi, gamma, alfa, beta
-'''
-
-'''
-def init_params(corpus, V):
-    NUM_DOCS = len(corpus)
-    # Initialization
-    phi = []  # M * N * k
-    gamma = []  # M * k
-    alfa = []  # M * k
-    beta = []  # M * k * V
-    for docIdx in range(NUM_DOCS):
-        doc = corpus[docIdx]
-        N = len(doc)
-        phi.append(init_phi(N))
-        alfa.append([0.5] * NUM_TOPICS_K)
-        beta.append(init_beta(V))
-        gamma.append(init_gamma(alfa[docIdx], N))
-
-    return phi, gamma, alfa, beta
-'''
 
 
 # Written in the context of a single document
 # Uses natural logarithm
-def gradient_k(alfa_k, alfa_sum, N):
-    return N * (sp.digamma(alfa_sum) - sp.digamma(alfa_k) + np.log(alfa_k/alfa_sum))
+def gradient_k(alpha_k, alpha_sum, N):
+    return N * (sp.digamma(alpha_sum) - sp.digamma(alpha_k) + np.log(alpha_k/alpha_sum))
 
 
-def hessian_inverse_gradient(alfa, document, theta_average_k, M):
+def hessian_inverse_gradient(alpha, document, theta_average_k, M):
     N = len(document)
 
-    z = N * sp.polygamma(1, np.sum(alfa))
+    z = N * sp.polygamma(1, np.sum(alpha))
 
     Q = np.zeros(NUM_TOPICS_K)
     gradient = np.array(NUM_TOPICS_K)
-    alfa_sum = np.sum(alfa)
+    alpha_sum = np.sum(alpha)
     for k in range(NUM_TOPICS_K):
-        Q[k] = -N * sp.polygamma(1, np.sum(alfa))
-        gradient[k] = gradient_k(theta_average_k, alfa[k], alfa_sum, N)
+        Q[k] = -N * sp.polygamma(1, np.sum(alpha))
+        gradient[k] = gradient_k(theta_average_k, alpha[k], alpha_sum, N)
 
     # id_matrix = np.diag(np.array(NUM_TOPICS_K))
     inv_Q = np.linalg.inv(Q)
@@ -181,7 +150,7 @@ def hessian_inverse_gradient(alfa, document, theta_average_k, M):
     return (gradient - b) / Q
 
 
-def max_step(alfa, beta, phi, V, corpus, theta):
+def max_step(alpha, beta, phi, V, corpus, theta):
     for i in range(NUM_TOPICS_K):
         pass
         for j in range(V):
@@ -189,10 +158,10 @@ def max_step(alfa, beta, phi, V, corpus, theta):
 
     theta_averages = row_averages(theta, len(corpus))
     for docIdx in range(len(corpus)):
-        alfa[docIdx] = alfa[docIdx] - hessian_inverse_gradient(alfa[docIdx], corpus[docIdx], theta_averages,
+        alpha[docIdx] = alpha[docIdx] - hessian_inverse_gradient(alpha[docIdx], corpus[docIdx], theta_averages,
                                                                len(corpus))
 
-    return alfa, beta
+    return alpha, beta
 
 
 def row_averages(theta, M):
@@ -211,8 +180,8 @@ def variational_expectation_maximization():
     V = len(vocab)
     corpus = make_corpus(get_vocab())
     NUM_DOCS = len(corpus)
-    # phi, gamma, alfa, beta = init_params(corpus, V)
-    alfa, beta = init_alfa_beta(V)
+    # phi, gamma, alpha, beta = init_params(corpus, V)
+    alpha, beta = init_alpha_beta(V)
     theta = init_theta(NUM_DOCS)
     phi = []
     gamma = []
@@ -224,11 +193,11 @@ def variational_expectation_maximization():
         for docIdx in range(NUM_DOCS):
             doc = corpus[docIdx]
             N = np.size(doc, axis=0)  # TODO DOUBLE CHECK
-            phi_doc, gamma_doc = variational_inference(N, alfa, beta, corpus, V)
+            phi_doc, gamma_doc = variational_inference(N, alpha, beta, corpus, V)
             phi.append(phi_doc)
             gamma.append(gamma_doc)
 
         # Maximization step
-        alfa, beta = max_step(alfa, beta, phi, V, corpus, theta)
+        alpha, beta = max_step(alpha, beta, phi, V, corpus, theta)
 
-    return phi, gamma, alfa, beta, theta
+    return phi, gamma, alpha, beta, theta
