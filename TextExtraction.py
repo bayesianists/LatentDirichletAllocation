@@ -33,7 +33,7 @@ def extract_text(file_name):
     soup = BeautifulSoup(data)
     contents = soup.findAll('reuters')
     for content in contents:
-        if content['topics'] != "NO":
+        if content['topics']:
             topic = content.findAll('topics')
             Ds = topic[0].findAll('d')
             topics = []
@@ -129,5 +129,5 @@ def make_corpus(vocabulary):
     return np.array(documents)
 
 
-#write_list_to_file(create_vocabulary(join_document()))
+write_list_to_file(create_vocabulary(join_document()))
 #print(make_corpus(get_vocab()))
