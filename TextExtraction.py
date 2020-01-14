@@ -3,6 +3,9 @@ from collections import defaultdict
 import numpy as np
 from bs4 import BeautifulSoup
 import os
+from nltk.corpus import stopwords
+
+stop = stopwords.words('english')
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 current_path = dir_path + '/reuters21578'
@@ -71,7 +74,7 @@ def create_vocabulary(documents):
     for d in documents:
         for word in re.sub('[^A-Za-z]+', ' ', d.text).split(' '):
             word = word.casefold()
-            if word != 'reuter' and word != '':
+            if word != 'reuter' and word != '' and word not in stop:
                 vocabulary[word] += 1
     return vocabulary
 
