@@ -149,7 +149,12 @@ def init_params(corpus, V):
     return phi, gamma, alfa, beta
 '''
 
-def hessian_inverse(alfa, document):
+#Written in the context of a single document
+#Uses natural logarithm
+def gradient_k(theta_average_k, alfa_k, alfa_sum, N):
+    return N*(sp.psi(alfa_sum) - sp.psi(alfa_k) + np.log(theta_average_k))
+
+def hessian_inverse_gradient(alfa, document, theta_average_k, M):
     N = len(document)
 
     z = N * sp.polygamma(1, np.sum(alfa))
@@ -157,22 +162,32 @@ def hessian_inverse(alfa, document):
     Q = np.zeros(NUM_TOPICS_K)
     for k in range(NUM_TOPICS_K):
         Q[k] = -N*sp.polygamma(1, np.sum(alfa))
-    Q = np.diag(Q)
 
-    id_matrix = np.diag(np.array(NUM_TOPICS_K))
-    inv_Q = np.linalg.inv(Q)
-    numerator = (inv_Q@id_matrix@np.transpose(inv_Q)@inv_Q)
-    denominator = (1/z + np.transpose(id_matrix)@inv_Q@np.transpose(id_matrix))
-    return inv_Q - numerator/denominator
+    #id_matrix = np.diag(np.array(NUM_TOPICS_K))
+    #inv_Q = np.linalg.inv(Q)
+    hessian_inverse_gradient = np.array([])
+    alfa_sum = np.sum(alfa)
+    denominator = 0
+    numerator = 0
+    for j in range(NUM_TOPICS_K):
+        denominator += gradient_k(theta_average_k, alfa[j], alfa_sum, M)/Q[j]
+        numerator += 1/Q[j]
+    b = numerator/denominator
+
+    for j in range(NUM_TOPICS_K):
+        hessian_inverse_gradient[j] = (gradient_k(theta_average_k, alfa[j], alfa_sum, M) - b)/Q[j]
+    
+    return hessian_inverse_gradient
 
 
 def max_step(alfa, beta, phi, V, corpus):
     for i in range(NUM_TOPICS_K):
+        pass
         for j in range(V):
             beta[i][j] = beta_i_j(phi, corpus, i, j)
 
     for docIdx in range(len(corpus)):
-        alfa[docIdx] = alfa[docIdx] - hessian_inverse(alfa[docIdx], corpus[docIdx])
+        alfa[docIdx] = alfa[docIdx] - hessian_inverse_gradient(alfa[docIdx], corpus[docIdx], theta_average_k, len(corpus))
 
     return alfa, beta
 
