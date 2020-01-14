@@ -119,6 +119,13 @@ def make_corpus(vocabulary):
     :param vocabulary: Vocabulary as vector of words
     :return: Corpus
     """
+    '''
+    CORPUS_FILE_NAME = "numpyCorpus.npy"
+    if os.path.isfile(CORPUS_FILE_NAME):
+        print("Loading corpus from file system!")
+        return np.load(CORPUS_FILE_NAME)
+    '''
+
     documents = []
     for doc in join_document():
         document = []
@@ -126,8 +133,13 @@ def make_corpus(vocabulary):
             word = word.casefold()
             document.append(get_word_vector(word, vocabulary))
         documents.append(np.array(document))
-    return np.array(documents)
 
+    corpus = np.array(documents)
+    '''
+    np.save(CORPUS_FILE_NAME, corpus)
+    print("Saved corpus to file system!")
+    '''
+    return corpus
 
-#write_list_to_file(create_vocabulary(join_document()))
-#print(make_corpus(get_vocab()))
+# write_list_to_file(create_vocabulary(join_document()))
+# print(make_corpus(get_vocab()))

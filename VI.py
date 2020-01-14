@@ -2,7 +2,6 @@ import numpy as np
 # import TextExtraction
 from TextExtraction import get_vocab, make_corpus
 import scipy.special as sp
-import scipy.signal as ss
 
 """Contains the implemented Variational Inference algorithm for LDA and associated functions"""
 
@@ -51,13 +50,13 @@ def variational_inference(N, alpha, beta, corpus, V):
             for i in range(NUM_TOPICS_K):
                 phi = beta[i, n] * np.exp(sp.digamma(gamma[i]))
             phi[n] = normalize_row(phi)
-        gamma = sum_columns_alpha(alpha, phi)
+        gamma = sum_columns_phi_plus_alpha(alpha, phi)
         has_not_converged = convergence_check(t)
 
     return phi, gamma
 
 
-def sum_columns_alpha(alpha, phi):
+def sum_columns_phi_plus_alpha(alpha, phi):
     return alpha + np.sum(phi, axis=1)
 
 
@@ -93,19 +92,21 @@ def init_gamma(alpha, N):
 def init_beta(V):
     beta = []
     for i in range(NUM_TOPICS_K):
-        beta.append([1 / V] * V)
-    return beta
+        beta.append(np.array([1 / V] * V))
+    return np.array(beta)
 
 
+'''
 def init_theta(M):
     theta = []
     for i in range(NUM_TOPICS_K):
         theta.append([1 / M] * M)
     return theta
+'''
 
 
 def init_alpha_beta(V):
-    alpha = [0.5] * NUM_TOPICS_K
+    alpha = np.array([0.5] * NUM_TOPICS_K)
     beta = init_beta(V)
     return alpha, beta
 
@@ -119,10 +120,10 @@ def init_phi_gamma(N, alpha):
 # Written in the context of a single document
 # Uses natural logarithm
 def gradient_k(alpha_k, alpha_sum, N):
-    return N * (sp.digamma(alpha_sum) - sp.digamma(alpha_k) + np.log(alpha_k/alpha_sum))
+    return N * (sp.digamma(alpha_sum) - sp.digamma(alpha_k) + np.log(alpha_k / alpha_sum))
 
 
-def hessian_inverse_gradient(alpha, document, theta_average_k, M):
+def hessian_inverse_gradient(alpha, document, M):
     N = len(document)
 
     z = N * sp.polygamma(1, np.sum(alpha))
@@ -132,7 +133,7 @@ def hessian_inverse_gradient(alpha, document, theta_average_k, M):
     alpha_sum = np.sum(alpha)
     for k in range(NUM_TOPICS_K):
         Q[k] = -N * sp.polygamma(1, np.sum(alpha))
-        gradient[k] = gradient_k(theta_average_k, alpha[k], alpha_sum, N)
+        gradient[k] = gradient_k(alpha[k], alpha_sum, N)
 
     # id_matrix = np.diag(np.array(NUM_TOPICS_K))
     inv_Q = np.linalg.inv(Q)
@@ -150,20 +151,19 @@ def hessian_inverse_gradient(alpha, document, theta_average_k, M):
     return (gradient - b) / Q
 
 
-def max_step(alpha, beta, phi, V, corpus, theta):
+def max_step(alpha, beta, phi, V, corpus):
     for i in range(NUM_TOPICS_K):
-        pass
         for j in range(V):
             beta[i][j] = beta_i_j(phi, corpus, i, j)
 
-    theta_averages = row_averages(theta, len(corpus))
+    # theta_averages = row_averages(theta, len(corpus))
     for docIdx in range(len(corpus)):
-        alpha[docIdx] = alpha[docIdx] - hessian_inverse_gradient(alpha[docIdx], corpus[docIdx], theta_averages,
-                                                               len(corpus))
+        alpha = alpha - hessian_inverse_gradient(alpha, corpus[docIdx], len(corpus))
 
     return alpha, beta
 
 
+'''
 def row_averages(theta, M):
     row_averages = np.array(NUM_TOPICS_K)
     for k in range(NUM_TOPICS_K):
@@ -173,6 +173,7 @@ def row_averages(theta, M):
 
         row_averages[k] = sum
     return row_averages
+'''
 
 
 def variational_expectation_maximization():
@@ -182,7 +183,7 @@ def variational_expectation_maximization():
     NUM_DOCS = len(corpus)
     # phi, gamma, alpha, beta = init_params(corpus, V)
     alpha, beta = init_alpha_beta(V)
-    theta = init_theta(NUM_DOCS)
+    # theta = init_theta(NUM_DOCS)
     phi = []
     gamma = []
 
@@ -192,12 +193,16 @@ def variational_expectation_maximization():
         gamma = []
         for docIdx in range(NUM_DOCS):
             doc = corpus[docIdx]
-            N = np.size(doc, axis=0)  # TODO DOUBLE CHECK
+            N = np.size(doc, axis=0)
             phi_doc, gamma_doc = variational_inference(N, alpha, beta, corpus, V)
             phi.append(phi_doc)
             gamma.append(gamma_doc)
 
         # Maximization step
-        alpha, beta = max_step(alpha, beta, phi, V, corpus, theta)
+        alpha, beta = max_step(alpha, beta, phi, V, corpus)
 
-    return phi, gamma, alpha, beta, theta
+    return phi, gamma, alpha, beta
+
+
+if __name__ == "__main__":
+    variational_expectation_maximization()
