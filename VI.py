@@ -106,6 +106,11 @@ def init_beta(V):
         beta.append([1 / V] * V)
     return beta
 
+def init_theta(M):
+    theta = []
+    for i in range(NUM_TOPICS_K):
+        theta.append([1 / M] * M)
+    return theta
 
 def init_alfa_beta(V):
     alfa = [0.5] * NUM_TOPICS_K
@@ -182,17 +187,27 @@ def hessian_inverse_gradient(alfa, document, theta_average_k, M):
     return (gradient - b)/Q
 
 
-def max_step(alfa, beta, phi, V, corpus):
+def max_step(alfa, beta, phi, V, corpus, theta):
     for i in range(NUM_TOPICS_K):
         pass
         for j in range(V):
             beta[i][j] = beta_i_j(phi, corpus, i, j)
 
+    theta_averages = row_averages(theta, len(corpus))
     for docIdx in range(len(corpus)):
-        alfa[docIdx] = alfa[docIdx] - hessian_inverse_gradient(alfa[docIdx], corpus[docIdx], theta_average_k, len(corpus))
+        alfa[docIdx] = alfa[docIdx] - hessian_inverse_gradient(alfa[docIdx], corpus[docIdx], theta_averages, len(corpus))
 
     return alfa, beta
 
+def row_averages(theta, M):
+    row_averages = np.array(NUM_TOPICS_K)
+    for k in range(NUM_TOPICS_K):
+        sum = 0
+        for d in range(M):
+            sum += theta[d][k]/M
+
+        row_averages[k] = sum
+    return row_averages
 
 def variational_expectation_maximization():
     vocab = get_vocab()
@@ -201,6 +216,7 @@ def variational_expectation_maximization():
     NUM_DOCS = len(corpus)
     # phi, gamma, alfa, beta = init_params(corpus, V)
     alfa, beta = init_alfa_beta(V)
+    theta = init_theta()
 
     # phi, gamma, for each doc in list
     phi = []
@@ -213,4 +229,4 @@ def variational_expectation_maximization():
         gamma.append(gamma_doc)
 
     # Maximization step
-    alfa, beta = max_step(alfa, beta, phi, V)
+    alfa, beta = max_step(alfa, beta, phi, V, corpus, theta)
