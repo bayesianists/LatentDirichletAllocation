@@ -10,9 +10,6 @@ NUM_TOPICS_K = 17
 VI_ITERATIONS = 5
 EM_ITERATIONS = 5
 
-phi = 0
-gamma = 0
-
 
 def beta_i_j(phi, documents, i, j):
     s = 0
