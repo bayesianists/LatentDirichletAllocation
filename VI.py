@@ -7,22 +7,7 @@ import scipy.special as sp
 
 NUM_TOPICS_K = 2
 VI_ITERATIONS = 1
-EM_ITERATIONS = 3
-
-
-def beta_i_j(phi, documents, i, j):
-    s = 0
-    # print(np.array(phi).shape)
-    # TODO GETTING THEM ERRORS!!! OOGABOOGA
-    for d in range(len(documents)):
-        for n in range(len(documents[d])):
-            # if d > 19000:  # 19042 gave error
-            # print(documents[d][n])
-            # s += phi[d][n][i] * (documents[d][n] ** j)
-            s += phi[d][n][i] * documents[d][n][j]
-
-    return s
-
+EM_ITERATIONS = 1
 
 # Pseudocode for VI, LDA
 """ (1) initialize φ0 ni := 1/k for all i and n 
@@ -37,14 +22,14 @@ def beta_i_j(phi, documents, i, j):
 
 
 # Called once per doc
-def variational_inference(N, alpha, beta, doc):
+def variational_inference(N, alpha, beta, doc, phi=None, gamma=None):
     """
     Runs the VI algorithm according to the pseudocode above.
     :param
     :return
     """
 
-    phi, gamma = init_phi_gamma(N, alpha)
+    phi, gamma = init_phi_gamma(N, alpha, phi, gamma)
 
     has_converged = False
     t = 0
@@ -53,36 +38,36 @@ def variational_inference(N, alpha, beta, doc):
         for n in range(N):
             for i in range(NUM_TOPICS_K):
                 nonZeroes = np.nonzero(doc[n])
-                betaVal = 0.0001
+                betaVal = 0.0001  # joey smoothing
                 if np.size(nonZeroes) > 0:
                     betaVal = beta[i][nonZeroes[0]]
 
                 phi[n][i] = betaVal * np.exp(sp.digamma(gamma[i]))
             phi[n] /= np.sum(phi[n])
-        gamma = sum_rows_phi_plus_alpha(alpha, phi)
+        gamma = alpha + np.sum(phi, axis=0)
 
         t += 1
-        has_converged = convergence_check(t)
+        has_converged = t == VI_ITERATIONS
 
     return phi, gamma
 
 
-def sum_rows_phi_plus_alpha(alpha, phi):
-    return alpha + np.sum(phi, axis=0)
-
-
-def convergence_check(t):
-    return t == VI_ITERATIONS
-
-
 # for one document
-def init_phi(N):
-    phi0 = np.zeros((N, NUM_TOPICS_K))
-    return phi0 + 1 / NUM_TOPICS_K
+def init_phi(N, phi=None):
+    if phi is None:
+        phi = np.empty((N, NUM_TOPICS_K))
+
+    phi.fill(1 / NUM_TOPICS_K)
+    return phi
 
 
-def init_gamma(alpha, N):
-    return alpha + N / NUM_TOPICS_K
+def init_gamma(alpha, N, gamma=None):
+    if gamma is None:
+        return alpha + N / NUM_TOPICS_K
+    else:
+        for i in range(NUM_TOPICS_K):
+            gamma.fill(alpha[i] + N / NUM_TOPICS_K)
+        return gamma
 
 
 # once for each document
@@ -99,9 +84,9 @@ def init_alpha_beta(V):
     return alpha, beta
 
 
-def init_phi_gamma(N, alpha):
-    phi = init_phi(N)
-    gamma = init_gamma(alpha, N)
+def init_phi_gamma(N, alpha, phi=None, gamma=None):
+    phi = init_phi(N, phi)
+    gamma = init_gamma(alpha, N, gamma)
     return phi, gamma
 
 
@@ -112,11 +97,9 @@ def gradient_k(alpha_k, alpha_sum, N):
     return N * (sp.digamma(alpha_sum) - sp.digamma(alpha_k) + np.log(alpha_k / alpha_sum))
 
 
-def hessian_inverse_gradient(alpha, document, M):
-    N = len(document)
-
+def hessian_inverse_gradient(alpha, M):
     alpha_sum = np.sum(alpha)
-    z = N * sp.polygamma(1, alpha_sum)
+    z = M * sp.polygamma(1, alpha_sum)
 
     Q = np.zeros(NUM_TOPICS_K)
     gradient = np.zeros(NUM_TOPICS_K)
@@ -126,13 +109,27 @@ def hessian_inverse_gradient(alpha, document, M):
 
     # TODO: Check what j is in the formulas
     for k in range(NUM_TOPICS_K):
-        Q[k] = -N * sp.polygamma(1, alpha[k])
-        gradient[k] = gradient_k(alpha[k], alpha_sum, N)
+        Q[k] = -M * sp.polygamma(1, alpha[k])
+        gradient[k] = gradient_k(alpha[k], alpha_sum, M)
 
     inv_Q = np.reciprocal(Q)
     b = np.sum(gradient * inv_Q) / (np.sum(inv_Q) + (1 / z))
+    # print("z:", z)
+    # print("sum of inv_Q:", np.sum(inv_Q))
 
     return (gradient - b) / Q
+
+
+def beta_i_j(phi, documents, i, j):
+    s = 0
+    for d in range(len(documents)):
+        for n in range(len(documents[d])):
+            # if d > 19000:  # 19042 gave error
+            # print(documents[d][n])
+            # s += phi[d][n][i] * (documents[d][n] ** j)
+            s += phi[d][n][i] * documents[d][n][j]
+
+    return s
 
 
 def max_step(alpha, beta, phi, V, corpus):
@@ -141,8 +138,8 @@ def max_step(alpha, beta, phi, V, corpus):
             beta[i][j] = beta_i_j(phi, corpus, i, j)
 
     # theta_averages = row_averages(theta, len(corpus))
-    for docIdx in range(len(corpus)):
-        alpha = alpha - hessian_inverse_gradient(alpha, corpus[docIdx], len(corpus))
+    # for docIdx in range(len(corpus)):
+    alpha = alpha - hessian_inverse_gradient(alpha, len(corpus))
 
     return alpha, beta
 
@@ -155,21 +152,17 @@ def variational_expectation_maximization():
     # phi, gamma, alpha, beta = init_params(corpus, V)
     alpha, beta = init_alpha_beta(V)
     # theta = init_theta(NUM_DOCS)
-    phi = []
-    gamma = []
+    phi = [None] * NUM_DOCS
+    gamma = [None] * NUM_DOCS
 
     for emStep in range(EM_ITERATIONS):
         print("EM-step:", emStep)
         # phi, gamma, for each doc in list
-        phi = []
-        gamma = []
         print("E-step...")
         for docIdx in range(NUM_DOCS):
             doc = corpus[docIdx]
             N = np.size(doc, axis=0)
-            phi_doc, gamma_doc = variational_inference(N, alpha, beta, doc)
-            phi.append(phi_doc)
-            gamma.append(gamma_doc)
+            phi[docIdx], gamma[docIdx] = variational_inference(N, alpha, beta, doc, phi[docIdx], gamma[docIdx])
 
         # Maximization step
         print("M-step...")
@@ -178,7 +171,7 @@ def variational_expectation_maximization():
     return phi, gamma, alpha, beta
 
 
-def runStuff():
+def joeys_algorithm():
     phi, gamma, alpha, beta = variational_expectation_maximization()
     print("Phi:", phi)
     print("Gamma:", gamma)
@@ -187,4 +180,4 @@ def runStuff():
 
 
 if __name__ == "__main__":
-    runStuff()
+    joeys_algorithm()
