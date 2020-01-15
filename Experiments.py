@@ -1,7 +1,13 @@
+import re
+
 import VI
 import numpy as np
 from sklearn import svm
+import TextExtraction as te
+from nltk.corpus import stopwords
 
+
+stop = stopwords.words('english')
 """
     Experiment description:
     
@@ -36,3 +42,41 @@ from sklearn import svm
     Note that we reduce the feature space by 99.6 percent in this case.
 
 """
+
+
+def SVM(X, Y, test):
+    clf = svm.SVC()
+    clf.fit(X, Y)
+    return clf.predict(test)
+
+
+#X = np.array([[1, 0], [1, 0, 0], [0]])
+#Y = np.array([1, 0, 1])
+#test = np.array([[2, 1, 3], [3, 1, 5]])
+
+def generate_data(str_topic, max_documents=8000):
+    vocab = te.get_vocab()
+    data = []
+    topics = []
+    V = len(vocab)
+    corpus = te.join_document()
+    i=0
+    for document in corpus:
+        i+=1
+        if i >= max_documents:
+            break
+        topic = 0
+        if  str_topic in document.topics:
+            topic = 1
+        topics.append(topic)
+        features = np.zeros(V)
+        for word in re.sub('[^A-Za-z]+', ' ', document.text).split(' '):
+            word = word.casefold()
+            if word != 'reuter' and word != '' and word not in stop:
+                if word in vocab:
+                    features[vocab.index(word)] += 1
+        data.append(features)
+    return np.array(data), np.array(topics)
+
+
+X, Y = generate_data('earn', 1000)
