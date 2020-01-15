@@ -121,7 +121,7 @@ def get_vocab():
         return lines
 
 
-def make_corpus(vocabulary):
+def make_corpus(vocabulary, cap=8000):
     """
     :param vocabulary: Vocabulary as vector of words
     :return: Corpus
@@ -136,11 +136,15 @@ def make_corpus(vocabulary):
 
     documents = []
     for doc in join_document():
+        i = 0
         document = []
         for word in re.sub('[^A-Za-z]+', ' ', doc.text).split(' '):
             word = word.casefold()
             document.append(get_word_vector(word, vocabulary))
-        documents.append(np.array(document))
+        i += 1
+        documents.append(np.areray(document))
+        if i > cap:
+            break
 
     corpus = np.array(documents)
 
@@ -151,5 +155,5 @@ def make_corpus(vocabulary):
 
 
 if __name__ == "__main__":
-    # write_list_to_file(create_vocabulary(join_document()), 10)
-    print(make_corpus(get_vocab()))
+    write_list_to_file(create_vocabulary(join_document()), 100)
+    #print(make_corpus(get_vocab()))
