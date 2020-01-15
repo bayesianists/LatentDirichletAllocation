@@ -142,7 +142,7 @@ def make_corpus(vocabulary, cap=8000):
             word = word.casefold()
             document.append(get_word_vector(word, vocabulary))
         i += 1
-        documents.append(np.areray(document))
+        documents.append(np.array(document))
         if i > cap:
             break
 
@@ -156,4 +156,4 @@ def make_corpus(vocabulary, cap=8000):
 
 if __name__ == "__main__":
     write_list_to_file(create_vocabulary(join_document()), 100)
-    #print(make_corpus(get_vocab()))
+    print(make_corpus(get_vocab(), 500))

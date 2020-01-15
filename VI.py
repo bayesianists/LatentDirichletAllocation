@@ -5,9 +5,9 @@ import scipy.special as sp
 
 """Contains the implemented Variational Inference algorithm for LDA and associated functions"""
 
-NUM_TOPICS_K = 2
-VI_ITERATIONS = 1
-EM_ITERATIONS = 1
+NUM_TOPICS_K = 3
+VI_ITERATIONS = 3
+EM_ITERATIONS = 5
 
 # Pseudocode for VI, LDA
 """ (1) initialize φ0 ni := 1/k for all i and n 
@@ -38,7 +38,7 @@ def variational_inference(N, alpha, beta, doc, phi=None, gamma=None):
         for n in range(N):
             for i in range(NUM_TOPICS_K):
                 nonZeroes = np.nonzero(doc[n])
-                betaVal = 0.0001  # joey smoothing
+                betaVal = 0.00001  # joey smoothing
                 if np.size(nonZeroes) > 0:
                     betaVal = beta[i][nonZeroes[0]]
 
@@ -79,7 +79,7 @@ def init_beta(V):
 
 
 def init_alpha_beta(V):
-    alpha = np.array([0.5] * NUM_TOPICS_K)
+    alpha = np.array([1.0] * NUM_TOPICS_K)
     beta = init_beta(V)
     return alpha, beta
 
@@ -177,6 +177,7 @@ def joeys_algorithm():
     print("Gamma:", gamma)
     print("alpha:", alpha)
     print("beta:", beta)
+    np.save("params", np.array([phi, gamma, alpha, beta]))
 
 
 if __name__ == "__main__":
