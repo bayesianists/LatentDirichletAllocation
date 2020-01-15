@@ -104,6 +104,7 @@ def init_phi_gamma(N, alpha):
 
 # Written in the context of a single document
 # Uses natural logarithm
+# Maybe try some other logarithm
 def gradient_k(alpha_k, alpha_sum, N):
     return N * (sp.digamma(alpha_sum) - sp.digamma(alpha_k) + np.log(alpha_k / alpha_sum))
 
