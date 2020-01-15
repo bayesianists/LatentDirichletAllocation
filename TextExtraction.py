@@ -161,5 +161,5 @@ def make_corpus(vocabulary, cap=8000):
 
 
 if __name__ == "__main__":
-    write_list_to_file(create_vocabulary(join_document()), 100)
-    print(make_corpus(get_vocab(), 500))
+    write_list_to_file(create_vocabulary(join_document()), 20000)
+    #print(make_corpus(get_vocab(), 500))

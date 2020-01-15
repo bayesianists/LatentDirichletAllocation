@@ -54,6 +54,28 @@ def SVM(X, Y, test):
 # test = np.array([[2, 1, 3], [3, 1, 5]])
 
 
+def accuracy(X, Y, data_split_ratio=0.2):
+    split = np.random.randint(low=1, high=(1 -data_split_ratio)*100, size=1) / 100
+
+    test_Y = Y[int(split * data_size):int((split + data_split_ratio) * data_size):1]
+    training_Y = np.concatenate(
+        (Y[0:int(split * data_size):1], Y[int((split + data_split_ratio) * data_size):np.size(Y):1]))
+    test_X = X[int(split * data_size):int((split + data_split_ratio) * data_size):1]
+    training_X = np.concatenate(
+        (X[0:int(split * data_size):1], X[int((split + data_split_ratio) * data_size):np.size(X):1]))
+
+    results = SVM(training_X, training_Y, test_X)
+
+    summ = 0
+
+    print(np.size(results))
+    print(np.size(test_Y))
+    for res, i in enumerate(results):
+        if res == test_Y[i]:
+            summ += 1
+    return 1 - (summ / np.size(results))
+
+
 def generate_data(str_topic, max_documents=8000):
     vocab = te.get_vocab()
     data = []
@@ -79,28 +101,11 @@ def generate_data(str_topic, max_documents=8000):
     return np.array(data), np.array(topics)
 
 
-data_size = 10000
+data_size = 2000
 
 X, Y = generate_data('earn', data_size)
-split = np.random.randint(low=1, high=80, size=1) / 100
 
 print("---------------")
 
-test_Y = Y[int(split * data_size):int((split + 0.2) * data_size):1]
-training_Y = np.concatenate((Y[0:int(split * data_size):1], Y[int((split + 0.2) * data_size):np.size(Y):1]))
-test_X = X[int(split * data_size):int((split + 0.2) * data_size):1]
-training_X = np.concatenate((X[0:int(split * data_size):1], X[int((split + 0.2) * data_size):np.size(X):1]))
-
-
-print(np.shape(test_X))
-print(np.shape(training_X))
-results = SVM(training_X, training_Y, test_X)
-
-print((np.sum(results*test_Y))/np.size(results))
-
-
-
-# training_Y = np.delete(Y, test_Y)
-# print(len(training_Y))
-# print(len(training_Y))
-# print((training_Y))
+Accuracy = accuracy(X, Y, 0.05)
+print(Accuracy)
