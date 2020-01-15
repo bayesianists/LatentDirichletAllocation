@@ -5,6 +5,9 @@ from bs4 import BeautifulSoup
 import os
 from nltk.corpus import stopwords
 
+# import nltk
+# nltk.download('stopwords')
+
 stop = stopwords.words('english')
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -86,6 +89,7 @@ def write_list_to_file(dictionary, maxint=1000):
     :param maxint: maximum number of words allowed
     :return: nothing
     """
+    maxint -= 1
     f = open("vocabulary.txt", "w")
     i = 0
     for word, frequency in sorted(dictionary.items(), key=lambda x: x[1], reverse=True):
@@ -122,12 +126,13 @@ def make_corpus(vocabulary):
     :param vocabulary: Vocabulary as vector of words
     :return: Corpus
     """
-    '''
+
     CORPUS_FILE_NAME = "numpyCorpus.npy"
     if os.path.isfile(CORPUS_FILE_NAME):
-        print("Loading corpus from file system!")
-        return np.load(CORPUS_FILE_NAME)
-    '''
+        print("Loading corpus from file system...")
+        corpus = np.load(CORPUS_FILE_NAME)
+        print("Loaded corpus!")
+        return corpus
 
     documents = []
     for doc in join_document():
@@ -142,11 +147,13 @@ def make_corpus(vocabulary):
             break
 
     corpus = np.array(documents)
-    '''
+
     np.save(CORPUS_FILE_NAME, corpus)
     print("Saved corpus to file system!")
-    '''
+
     return corpus
 
-# write_list_to_file(create_vocabulary(join_document()))
-# print(make_corpus(get_vocab()))
+
+if __name__ == "__main__":
+    # write_list_to_file(create_vocabulary(join_document()), 10)
+    print(make_corpus(get_vocab()))
