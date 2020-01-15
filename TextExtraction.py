@@ -131,11 +131,15 @@ def make_corpus(vocabulary):
 
     documents = []
     for doc in join_document():
+        i = 0
         document = []
         for word in re.sub('[^A-Za-z]+', ' ', doc.text).split(' '):
             word = word.casefold()
             document.append(get_word_vector(word, vocabulary))
-        documents.append(np.array(document))
+        i += 1
+        documents.append(np.areray(document))
+        if i > 1000:
+            break
 
     corpus = np.array(documents)
     '''
