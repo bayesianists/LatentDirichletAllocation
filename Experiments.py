@@ -6,7 +6,6 @@ from sklearn import svm
 import TextExtraction as te
 from nltk.corpus import stopwords
 
-
 stop = stopwords.words('english')
 """
     Experiment description:
@@ -50,9 +49,10 @@ def SVM(X, Y, test):
     return clf.predict(test)
 
 
-#X = np.array([[1, 0], [1, 0, 0], [0]])
-#Y = np.array([1, 0, 1])
-#test = np.array([[2, 1, 3], [3, 1, 5]])
+# X = np.array([[1, 0], [1, 0, 0], [0]])
+# Y = np.array([1, 0, 1])
+# test = np.array([[2, 1, 3], [3, 1, 5]])
+
 
 def generate_data(str_topic, max_documents=8000):
     vocab = te.get_vocab()
@@ -60,13 +60,13 @@ def generate_data(str_topic, max_documents=8000):
     topics = []
     V = len(vocab)
     corpus = te.join_document()
-    i=0
+    i = 0
     for document in corpus:
-        i+=1
+        i += 1
         if i >= max_documents:
             break
         topic = 0
-        if  str_topic in document.topics:
+        if str_topic in document.topics:
             topic = 1
         topics.append(topic)
         features = np.zeros(V)
@@ -79,4 +79,28 @@ def generate_data(str_topic, max_documents=8000):
     return np.array(data), np.array(topics)
 
 
-X, Y = generate_data('earn', 1000)
+data_size = 10000
+
+X, Y = generate_data('earn', data_size)
+split = np.random.randint(low=1, high=80, size=1) / 100
+
+print("---------------")
+
+test_Y = Y[int(split * data_size):int((split + 0.2) * data_size):1]
+training_Y = np.concatenate((Y[0:int(split * data_size):1], Y[int((split + 0.2) * data_size):np.size(Y):1]))
+test_X = X[int(split * data_size):int((split + 0.2) * data_size):1]
+training_X = np.concatenate((X[0:int(split * data_size):1], X[int((split + 0.2) * data_size):np.size(X):1]))
+
+
+print(np.shape(test_X))
+print(np.shape(training_X))
+results = SVM(training_X, training_Y, test_X)
+
+print((np.sum(results*test_Y))/np.size(results))
+
+
+
+# training_Y = np.delete(Y, test_Y)
+# print(len(training_Y))
+# print(len(training_Y))
+# print((training_Y))
