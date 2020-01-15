@@ -121,6 +121,12 @@ def get_vocab():
         return lines
 
 
+def one_hot_to_string(word_vec, vocab):
+    nonZeroes = np.nonzero(word_vec)
+    wordIdx = nonZeroes[0]
+    return vocab[wordIdx]
+
+
 def make_corpus(vocabulary, cap=8000):
     """
     :param vocabulary: Vocabulary as vector of words

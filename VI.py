@@ -1,6 +1,6 @@
 import numpy as np
 # import TextExtraction
-from TextExtraction import get_vocab, make_corpus
+from TextExtraction import get_vocab, make_corpus, one_hot_to_string
 import scipy.special as sp
 
 """Contains the implemented Variational Inference algorithm for LDA and associated functions"""
@@ -171,12 +171,27 @@ def variational_expectation_maximization():
     return phi, gamma, alpha, beta
 
 
+def find_topic_words(beta, topic, vocab, numWords=5):
+    wordDist = beta[topic]
+    topWords = np.sort(wordDist)[::-1]
+    extractedWords = []
+    for i in range(numWords):
+        extractedWords.append(one_hot_to_string(topWords[i], vocab))
+    return extractedWords
+
+
 def joeys_algorithm():
     phi, gamma, alpha, beta = variational_expectation_maximization()
     print("Phi:", phi)
     print("Gamma:", gamma)
     print("alpha:", alpha)
     print("beta:", beta)
+    vocab = get_vocab()
+    topicWords = []
+    for i in range(NUM_TOPICS_K):
+        topicWords.append(find_topic_words(beta, i, vocab, 5))
+    print("Topics and words")
+    print(np.array(topicWords))
     np.save("params", np.array([phi, gamma, alpha, beta]))
 
 
