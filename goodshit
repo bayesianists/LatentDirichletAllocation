@@ -1,1 +1,4 @@
-sum of gamma
+PROBLEMS:
+    - sum of gamma
+    - alpha per document (we think alpha and beta are the only parameters that are shared over documents)
+    - beta per document
