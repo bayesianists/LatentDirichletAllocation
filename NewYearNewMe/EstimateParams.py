@@ -1,10 +1,12 @@
+from LatentDirichletAllocation.NewYearNewMe import PreProcess
+
 NUM_TOPICS_K = 3
 VI_ITERATIONS = 3
 EM_ITERATIONS = 5
 
 
 def expectationMaximization():
-    for i in EM_ITERATIONS:
+    for i in range(EM_ITERATIONS):
         pass
         # E: VI
         # M: EstimateAB
@@ -16,5 +18,5 @@ def estimateParams():
 
 
 if __name__ == '__main__':
-    pass
-    #
+    vocab, corpus = PreProcess.preProcess()
+    estimateParams()
