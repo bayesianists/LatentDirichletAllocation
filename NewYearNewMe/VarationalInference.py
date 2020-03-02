@@ -10,13 +10,13 @@ def initializeDoc(alpha, N, K):
 
 def inference(alpha, beta, N, doc, K, numIterations):
     phi, gamma = initializeDoc(alpha, N, K)
-    iterations = 0
-    while numIterations > iterations:
+    t = 0
+    while t < numIterations:
         for n in range(N):
             for i in range(K):
                 # BETA INDEXING MAY BE A PROBLEM - Smoothing!!!!!!!!
                 phi[n][i] = beta[i][doc[n]] * np.exp(sp.digamma(gamma[i]))
             phi[n] /= np.sum(phi[n])
         gamma = alpha + np.sum(phi, axis=0)
-        iterations += 1
+        t += 1
     return phi, gamma
