@@ -1,4 +1,5 @@
-from LatentDirichletAllocation.NewYearNewMe import PreProcess
+#from LatentDirichletAllocation.NewYearNewMe import PreProcess
+import NewYearNewMe.PreProcess as PP
 
 NUM_TOPICS_K = 3
 VI_ITERATIONS = 3
