@@ -3,14 +3,14 @@ import numpy as np
 import scipy.special as sp
 
 
-def initialize(alpha, N):
+def initializeDoc(alpha, N):
     phi = np.ones((N, EP.NUM_TOPICS_K)) / EP.NUM_TOPICS_K
     gamma = alpha + N / EP.NUM_TOPICS_K
     return phi, gamma
 
 
 def inference(alpha, beta, N, doc):
-    phi, gamma = initialize(alpha, N)
+    phi, gamma = initializeDoc(alpha, N)
     iterations = 0
     while EP.VI_ITERATIONS > iterations:
         for n in range(N):

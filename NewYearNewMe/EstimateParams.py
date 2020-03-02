@@ -1,25 +1,38 @@
-#from LatentDirichletAllocation.NewYearNewMe import PreProcess
-import NewYearNewMe.PreProcess as PP
 import NewYearNewMe.VarationalInference as VI
+from NewYearNewMe import PreProcess, EstimateAB
+
 NUM_TOPICS_K = 3
 VI_ITERATIONS = 3
 EM_ITERATIONS = 5
-VOCAB_SIZE = 1000
 
-def expectationMaximization():
+
+def expectationMaximization(corpus, V):
+    alpha, beta = EstimateAB.initAlphaBeta(V)
+    phi = None
+    gamma = None
+
     for i in range(EM_ITERATIONS):
-        pass
+        phi = []
+        gamma = []
         # E: VI
-        phi, gamma = VI.inference(alpha,beta, N, doc)
+        for idx, doc in enumerate(corpus):
+            N = len(doc)
+            phiDoc, gammaDoc = VI.inference(alpha, beta, N, doc)
+            phi.append(phiDoc)
+            gamma.append(gammaDoc)
+
         # M: EstimateAB
-        EM.maximization(phi, gamma)
-    pass
+        EstimateAB.maximizationStep(corpus, V, alpha, beta, phi)
+
+    return alpha, beta, phi, gamma
 
 
-def estimateParams():
-    expectationMaximization()
+def estimateParams(vocab, corpus):
+    V = len(vocab)
+    a, b, phi, gamma = expectationMaximization(corpus, V)
+    return a, b, phi, gamma
 
 
 if __name__ == '__main__':
     vocab, corpus = PreProcess.preProcess(1)
-    estimateParams()
+    estimateParams(vocab, corpus)
