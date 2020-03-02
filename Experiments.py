@@ -101,11 +101,12 @@ def generate_data(str_topic, max_documents=8000):
     return np.array(data), np.array(topics)
 
 
-data_size = 2000
+if __name__ == '__main__':
+    data_size = 2000
 
-X, Y = generate_data('earn', data_size)
+    X, Y = generate_data('earn', data_size)
 
-print("---------------")
+    print("---------------")
 
-Accuracy = accuracy(X, Y, 0.05)
-print(Accuracy)
+    Accuracy = accuracy(X, Y, 0.05)
+    print(Accuracy)
