@@ -14,6 +14,11 @@ def SVM(X, Y, test):
 
 
 def accuracy(X, Y, trainDataRatio=0.8):
+    X = np.array(X)
+    Y = np.array(Y)
+    print(Y)
+    print(X.shape)
+    print(Y.shape)
     numPoints = len(X)
     numTrain = int(numPoints * trainDataRatio)
     # split = np.random.randint(low=1, high=(1 - data_split_ratio) * 100, size=1) / 100
@@ -44,6 +49,10 @@ def accuracy(X, Y, trainDataRatio=0.8):
     # print(test_X.shape)
     results = SVM(training_X, training_Y, test_X)
     '''
+    print(trainX.shape)
+    print(trainY.shape)
+    print(testX.shape)
+
     results = SVM(trainX, trainY, testX)
 
     # print(np.size(results))

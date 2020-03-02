@@ -45,7 +45,10 @@ def preProcess(numFilesToImport=-1):
     # Create a dictionary
     dictionary = gensim.corpora.Dictionary(preProcessedDocs)
     dictionary.filter_extremes(no_below=10, no_above=0.5)
-    # bow_corpus = [dictionary.doc2bow(doc) for doc in preProcessedDocs]
+    # bowCorpus = [dictionary.doc2bow(doc) for doc in preProcessedDocs]
+    # svmRawData = [dictionary.doc2idx(doc) for doc in preProcessedDocs]
+    # for i, doc in enumerate(preProcessedDocs):
+    #     svmRawData[i] = [0 if w == -1 else w for w in doc]
     if sys.version_info[0] < 3:
         idxDocs = [np.array(filter(lambda a: a != -1, dictionary.doc2idx(doc))) for doc in preProcessedDocs]
     else:
@@ -58,6 +61,15 @@ def preProcess(numFilesToImport=-1):
     print("Vocab Size (V):", len(dictionary))
     print("Average Doc Length (N):", np.mean([len(doc) for doc in idxDocs]))
     return dictionary, idxDocs, topics
+
+
+def generateFreqList(corpus, V):
+    M = len(corpus)
+    docFreqs = np.zeros((M, V))
+    for i, doc in enumerate(corpus):
+        for w in doc:
+            docFreqs[i][w] += 1
+    return docFreqs
 
 
 if __name__ == '__main__':

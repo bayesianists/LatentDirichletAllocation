@@ -53,6 +53,6 @@ if __name__ == '__main__':
     np.save("Parameters/phi", phi)
     np.save("Parameters/gamma", gamma)
     '''
-    print(topics)
-    # topics = [1 if t == "bin"]
-    acc = accuracy(corpus, topics)
+    freqList = PreProcess.generateFreqList(corpus, len(vocab))
+    acc = accuracy(freqList, topics)
+    print(acc)

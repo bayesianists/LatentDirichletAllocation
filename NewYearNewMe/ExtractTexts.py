@@ -48,16 +48,19 @@ def extract_text(file_name, dirPath):
         if content['topics']:
             topic = content.findAll('topics')
             Ds = topic[0].findAll('d')
-            topicsNew = []
+            # topicsNew = []
+            tBin = 0
             for d in Ds:  # Iterating through topics for specific document
-                topicsNew.append(d.text)
+                if d.text == "earn":
+                    tBin = 1
+                # topicsNew.append(d.text)
 
             textBody = content.findAll('body')
             if len(textBody) == 1:
                 text = textBody[0].text  # The actual document (in textform, needs to be converted into BoW)
                 # documents.append(Document(topics, text))
                 texts.append(removeSpecial(text))
-                topics.append(topicsNew)
+                topics.append(tBin)
 
     return texts, topics
 
