@@ -1,4 +1,4 @@
-from LatentDirichletAllocation.NewYearNewMe import PreProcess
+from NewYearNewMe import PreProcess
 
 NUM_TOPICS_K = 3
 VI_ITERATIONS = 3
@@ -18,5 +18,5 @@ def estimateParams():
 
 
 if __name__ == '__main__':
-    vocab, corpus = PreProcess.preProcess()
+    vocab, corpus = PreProcess.preProcess(1)
     estimateParams()
