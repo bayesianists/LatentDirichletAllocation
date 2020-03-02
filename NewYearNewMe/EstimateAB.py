@@ -21,7 +21,8 @@ def betaIndex(i, j, phi, corpus):
         N = corpus[d].size
         for n in range(N):
             if corpus[d][n] == j:
-                betaSum += phi[d][n][i] * corpus[d][n]
+                betaSum += phi[d][n][i]
+
     return betaSum
 
 
@@ -58,10 +59,12 @@ def hessian_inverse_gradient(alpha, M, K):
 def maximizationStep(corpus, V, alpha, beta, phi, K):
     import time
     timeTaken = time.time()
+
     for i in range(K):
         for j in range(V):
             beta[i][j] = betaIndex(i, j, phi, corpus)
+
     print("BetaTime:", time.time() - timeTaken)
 
-    # alpha = alpha - hessian_inverse_gradient(alpha, len(corpus), K)
+    alpha = alpha - hessian_inverse_gradient(alpha, len(corpus), K)
     return alpha, beta

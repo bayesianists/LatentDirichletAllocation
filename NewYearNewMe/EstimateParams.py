@@ -1,10 +1,12 @@
 import time
+import numpy as np
 
 import NewYearNewMe.VarationalInference as VI
+from NewYearNewMe.ExperimentsNew.Classification import accuracy
 from NewYearNewMe import PreProcess, EstimateAB
 
 NUM_TOPICS_K = 2
-VI_ITERATIONS = 3
+VI_ITERATIONS = 50
 EM_ITERATIONS = 5
 
 
@@ -42,5 +44,15 @@ def estimateParams(vocab, corpus):
 
 
 if __name__ == '__main__':
-    vocab, corpus = PreProcess.preProcess(1)
-    estimateParams(vocab, corpus)
+    np.random.seed(13)
+    vocab, corpus, topics = PreProcess.preProcess(1)
+    '''
+    a, b, phi, gamma = estimateParams(vocab, corpus)
+    np.save("Parameters/a", a)
+    np.save("Parameters/b", b)
+    np.save("Parameters/phi", phi)
+    np.save("Parameters/gamma", gamma)
+    '''
+    print(topics)
+    # topics = [1 if t == "bin"]
+    acc = accuracy(corpus, topics)

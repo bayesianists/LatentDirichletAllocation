@@ -1,5 +1,4 @@
 import sys
-#https://github.com/blei-lab/onlineldavb/blob/master/onlineldavb.py
 import numpy as np
 import pandas as pd
 import gensim
@@ -16,8 +15,8 @@ from NewYearNewMe.ExtractTexts import getTexts
 stemmer = SnowballStemmer('english')
 
 # Uncomment this the first time you run it!
-nltk.download('wordnet')
-nltk.download('stopwords')
+# nltk.download('wordnet')
+# nltk.download('stopwords')
 
 # Youssef
 stop = stopwords.words('english')
@@ -58,7 +57,7 @@ def preProcess(numFilesToImport=-1):
     print("NumDocs (M):", len(idxDocs))
     print("Vocab Size (V):", len(dictionary))
     print("Average Doc Length (N):", np.mean([len(doc) for doc in idxDocs]))
-    return dictionary, idxDocs
+    return dictionary, idxDocs, topics
 
 
 if __name__ == '__main__':
