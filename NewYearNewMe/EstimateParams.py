@@ -5,9 +5,9 @@ import NewYearNewMe.VarationalInference as VI
 from NewYearNewMe.ExperimentsNew.Classification import accuracy
 from NewYearNewMe import PreProcess, EstimateAB
 
-NUM_TOPICS_K = 2
-VI_ITERATIONS = 50
-EM_ITERATIONS = 5
+NUM_TOPICS_K = 8
+VI_ITERATIONS = 20
+EM_ITERATIONS = 50
 
 
 def expectationMaximization(corpus, V):
@@ -45,7 +45,7 @@ def estimateParams(vocab, corpus):
 
 if __name__ == '__main__':
     np.random.seed(13)
-    vocab, corpus, topics = PreProcess.preProcess(1)
+    vocab, corpus, topics = PreProcess.preProcess(2)
     '''
     a, b, phi, gamma = estimateParams(vocab, corpus)
     np.save("Parameters/a", a)
@@ -53,6 +53,16 @@ if __name__ == '__main__':
     np.save("Parameters/phi", phi)
     np.save("Parameters/gamma", gamma)
     '''
+    a, b, phi, gamma = estimateParams(vocab, corpus)
+    print("--------")
+    print(gamma)
+    gamma = np.array(gamma)
     freqList = PreProcess.generateFreqList(corpus, len(vocab))
+    print(freqList.shape)
+    print(gamma.shape)
+
     acc = accuracy(freqList, topics)
-    print(acc)
+    accLDA = accuracy(gamma, topics)
+    print("ACCURACY")
+    print("Word Features: " + str(acc))
+    print("Topic Features (LDA): " + str(accLDA))
