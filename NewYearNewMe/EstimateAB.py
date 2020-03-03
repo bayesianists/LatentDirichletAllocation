@@ -4,7 +4,10 @@ import scipy.special as sp
 
 # once for each document
 def initBeta(V, K):
-    return np.ones((K, V)) / V
+    eta = np.ones(V)
+    beta = np.random.dirichlet(eta, K)
+    return beta
+    # return np.ones((K, V)) / V
 
 
 def initAlphaBeta(V, K):
@@ -15,13 +18,39 @@ def initAlphaBeta(V, K):
 
 # Might be able to use numpy here =)
 def betaIndex(i, j, phi, corpus):
-    betaSum = 0
     M = len(corpus)
+    betaSum = 0
+
+    '''
     for d in range(M):
         N = corpus[d].size
         for n in range(N):
             if corpus[d][n] == j:
                 betaSum += phi[d][n][i]
+    '''
+
+    for d in range(M):
+        idxs = np.where(corpus[d] == j)[0]
+        # print(idxs)
+        # print(np.where(corpus[d] == j))
+        # print("len:", len(idxs))
+        if len(idxs) > 0:
+            # if len(idxs) == 1:
+                # idxs = idxs[0]
+            # print(phi[d].shape)
+            # print(phi[d][:, i].shape)
+            # print(phi[d][:, i][idxs].shape)
+            # print("Getting phi[" + str(d) + "][" + str(idxs) + "][" + str(i) + "]:", phi[d, idxs, i])
+            # print(phi[d][:, i][idxs].shape)
+            betaSum += np.sum(phi[d][:, i][idxs])
+
+    # print(betaSum1)
+    # print(betaSum2)
+    # assert betaSum1 == betaSum2
+    # print(np.where(np.asarray(corpus) == j))
+    if np.isnan(betaSum):
+        print(betaSum)
+        assert False
 
     return betaSum
 
@@ -59,12 +88,19 @@ def hessian_inverse_gradient(alpha, M, K):
 def maximizationStep(corpus, V, alpha, beta, phi, K):
     import time
     timeTaken = time.time()
-
     for i in range(K):
         for j in range(V):
             beta[i][j] = betaIndex(i, j, phi, corpus)
 
     print("BetaTime:", time.time() - timeTaken)
 
-    alpha = alpha - hessian_inverse_gradient(alpha, len(corpus), K)
+    # Paper uses subtraction here, but a student in slack derived that this is incorrect and should be an addition
+    alpha = alpha + hessian_inverse_gradient(alpha, len(corpus), K)
     return alpha, beta
+
+
+if __name__ == '__main__':
+    testList = np.array(["ab", "lol", "sup"])
+    print(testList[0])
+    print(testList[[0, 1]])
+    print(testList[[0]])

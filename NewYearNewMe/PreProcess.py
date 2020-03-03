@@ -36,30 +36,39 @@ def preProcessStolen(text):
 
 
 # returns dictionary and list of numpy docs where each word is a pointer to the vocab/dict
-def preProcess(numFilesToImport=-1):
-    texts, topics = getTexts(numFilesToImport=numFilesToImport)
-    preProcessedDocs = []
-    for i in range(len(texts)):
-        preProcessedDocs.append(preProcessStolen(texts[i]))
-
-    # Create a dictionary
-    dictionary = gensim.corpora.Dictionary(preProcessedDocs)
-    dictionary.filter_extremes(no_below=10, no_above=0.5)
-    # bowCorpus = [dictionary.doc2bow(doc) for doc in preProcessedDocs]
-    # svmRawData = [dictionary.doc2idx(doc) for doc in preProcessedDocs]
-    # for i, doc in enumerate(preProcessedDocs):
-    #     svmRawData[i] = [0 if w == -1 else w for w in doc]
-    if sys.version_info[0] < 3:
-        idxDocs = [np.array(filter(lambda a: a != -1, dictionary.doc2idx(doc))) for doc in preProcessedDocs]
+def preProcess(numFilesToImport=-1, loadFromFile=False):
+    if loadFromFile:
+        print("Loading pre-processed data from hard drive!")
+        dictionary = np.load("ProcessedData/vocab.npy", allow_pickle=True)
+        idxDocs = np.load("ProcessedData/corpus.npy", allow_pickle=True)
+        topics = np.load("ProcessedData/topics.npy")
     else:
-        idxDocs = [np.array(list(filter(lambda a: a != -1, dictionary.doc2idx(doc)))) for doc in preProcessedDocs]
-    # npCorpus = np.array([np.array(doc) for doc in preProcessedDocs])
-    # print(np.array(idxDocs).shape)
-    # lengths = [len(doc) for doc in idxDocs]
-    # print(lengths)
+        print("Pre-processing data!")
+        texts, topics = getTexts(numFilesToImport=numFilesToImport)
+        preProcessedDocs = []
+        for i in range(len(texts)):
+            preProcessedDocs.append(preProcessStolen(texts[i]))
+
+        # Create a dictionary
+        dictionary = gensim.corpora.Dictionary(preProcessedDocs)
+        dictionary.filter_extremes(no_below=10, no_above=0.5)
+        # bowCorpus = [dictionary.doc2bow(doc) for doc in preProcessedDocs]
+        # svmRawData = [dictionary.doc2idx(doc) for doc in preProcessedDocs]
+        # for i, doc in enumerate(preProcessedDocs):
+        #     svmRawData[i] = [0 if w == -1 else w for w in doc]
+        if sys.version_info[0] < 3:
+            idxDocs = [np.array(filter(lambda a: a != -1, dictionary.doc2idx(doc))) for doc in preProcessedDocs]
+        else:
+            idxDocs = [np.array(list(filter(lambda a: a != -1, dictionary.doc2idx(doc)))) for doc in preProcessedDocs]
+
+        np.save("ProcessedData/vocab", dictionary)
+        np.save("ProcessedData/corpus", idxDocs)
+        np.save("ProcessedData/topics", topics)
+
     print("NumDocs (M):", len(idxDocs))
     print("Vocab Size (V):", len(dictionary))
     print("Average Doc Length (N):", np.mean([len(doc) for doc in idxDocs]))
+
     return dictionary, idxDocs, topics
 
 

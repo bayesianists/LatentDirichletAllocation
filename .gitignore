@@ -137,3 +137,7 @@ dmypy.json
 
 numpyCorpus.npy
 params.npy
+
+NewYearNewMe/Parameters/
+
+NewYearNewMe/ProcessedData/

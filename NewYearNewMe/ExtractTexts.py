@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 current_path = dir_path + '/../reuters21578/'
-if sys.version_info[0] < 3:
+if sys.version_info[0] < 3 or True:
     directory = current_path
 else:
     directory = os.fsencode(current_path)

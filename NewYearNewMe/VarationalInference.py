@@ -14,17 +14,21 @@ def inference(alpha, beta, N, doc, K, numIterations):
     t = 0
     while t < numIterations:
         gammaSumDigamma = sp.digamma(np.sum(gamma))
+        # doc = (1, N)
+        # beta = (K, V)
+        # gamma = (1, K)
         for n in range(N):
             word = doc[n]
-            # betaVec = beta[:, word]
-            # expVec = np.exp(sp.digamma(gamma))
+            betaVec = beta[:, word]
+            expVec = np.exp(sp.digamma(gamma) - gammaSumDigamma)
+            phi[n] = betaVec * expVec + 1e-20
 
-            for i in range(K):
+            # for i in range(K):
                 # BETA INDEXING MAY BE A PROBLEM - Smoothing!!!!!!!!
-                phi[n][i] = beta[i][word] * (np.exp(sp.digamma(gamma[i])) - gammaSumDigamma) + 1e-20
-                if phi[n][i] == 0:
-                    print("Beta:", beta[i][doc[n]])
-                    print("DiGamma:", np.exp(sp.digamma(gamma[i])))
+                # phi[n][i] = beta[i][word] * (np.exp(sp.digamma(gamma[i])) - gammaSumDigamma) + 1e-20
+                # if phi[n][i] == 0:
+                    # print("Beta:", beta[i][doc[n]])
+                    # print("DiGamma:", np.exp(sp.digamma(gamma[i])))
             # phi[n] /= np.sum(phi[n])
         phi = phi / np.expand_dims(np.sum(phi, axis=1), 1)  # (153, ) => (153, 1)
         gamma = alpha + np.sum(phi, axis=0)
