@@ -9,8 +9,11 @@ def initializeDoc(alpha, N, K):
 
 
 # Context of one document, phi is 2D-Matrix and gamma is vector
-def inference(alpha, beta, N, doc, K, numIterations):
+def inference(alpha, beta, N, doc, K, numIterations, gammaPrev):
     phi, gamma = initializeDoc(alpha, N, K)
+    if gammaPrev is not None:
+        gamma = gammaPrev
+
     t = 0
     while t < numIterations:
         gammaSumDigamma = sp.digamma(np.sum(gamma))
@@ -22,8 +25,8 @@ def inference(alpha, beta, N, doc, K, numIterations):
         # print(words)
         expVec = np.exp(sp.digamma(gamma) - gammaSumDigamma)
         if len(words) > 0:
-            betaMat = beta[:, words]
-            phi = betaMat.T * expVec + 1e-20
+            betaMat = beta[:, words]  # (K, N)
+            phi = betaMat.T * expVec + 1e-100  # (N, K) * (1, K) + (1, 1) = (N, K) + (N, K) = (N, K)
 
             # assert False
             # for n in range(N):

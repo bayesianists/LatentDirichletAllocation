@@ -7,28 +7,29 @@ from NewYearNewMe import PreProcess, EstimateAB
 
 NUM_TOPICS_K = 10
 VI_ITERATIONS = 100
-EM_ITERATIONS = 20
+EM_ITERATIONS = 50
 
 
 def expectationMaximization(corpus, V):
     alpha, beta = EstimateAB.initAlphaBeta(V, NUM_TOPICS_K)
     phi = None
-    gamma = None
+    gamma = []
     # print("Alpha:", alpha)
 
     for i in range(EM_ITERATIONS):
         print("EM iteration:", i)
         phi = []
-        gamma = []
+        gamma = [None for _ in range(len(corpus))]
         # E: VI
         timeTaken = time.time()
         # print(beta)
         for idx, doc in enumerate(corpus):
             # print("VI on document:", idx)
             N = len(doc)
-            phiDoc, gammaDoc = VI.inference(alpha, beta, N, doc, NUM_TOPICS_K, VI_ITERATIONS)
+            phiDoc, gammaDoc = VI.inference(alpha, beta, N, doc, NUM_TOPICS_K, VI_ITERATIONS, gamma[idx])
             phi.append(phiDoc)
-            gamma.append(gammaDoc)
+            # gamma.append(gammaDoc)
+            gamma[idx] = gammaDoc
 
             # print(phiDoc)
         gamma = np.array(gamma)
@@ -39,10 +40,10 @@ def expectationMaximization(corpus, V):
         # print("Alpha:", alpha)
         print("Time taken M:", time.time() - timeTaken)
 
-        # EstimateAB.getMostPopularWordsPerTopic(beta, NUM_TOPICS_K, vocab)
+        EstimateAB.getMostPopularWordsPerTopic(beta, NUM_TOPICS_K, vocab)
 
-        accLDA = accuracy(gamma, topics)
-        print("Topic Features (LDA):", accLDA)
+        # accLDA = accuracy(gamma, topics)
+        # print("Topic Features (LDA):", accLDA)
 
     return alpha, beta, phi, gamma
 
@@ -54,13 +55,13 @@ def estimateParams(vocab, corpus):
 
 
 if __name__ == '__main__':
-    np.random.seed(13)
-    vocab, corpus, topics = PreProcess.preProcess(numFilesToImport=1, loadFromFile=False, reuters=True)
+    # np.random.seed(13)
+    vocab, corpus, topics = PreProcess.preProcess(numFilesToImport=1, loadFromFile=False, reuters=False)
 
-    print("ACCURACY")
-    freqList = PreProcess.generateFreqList(corpus, len(vocab))
-    acc = accuracy(freqList, topics)
-    print("Word Features: " + str(acc))
+    # print("ACCURACY")
+    # freqList = PreProcess.generateFreqList(corpus, len(vocab))
+    # acc = accuracy(freqList, topics)
+    # print("Word Features: " + str(acc))
     # only estimate params if this is false, otherwise load old params
     LOAD_PARAMS = False
 
