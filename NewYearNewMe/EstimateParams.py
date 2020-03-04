@@ -5,15 +5,16 @@ import NewYearNewMe.VarationalInference as VI
 from NewYearNewMe.ExperimentsNew.Classification import accuracy
 from NewYearNewMe import PreProcess, EstimateAB
 
-NUM_TOPICS_K = 8
-VI_ITERATIONS = 75
-EM_ITERATIONS = 1
+NUM_TOPICS_K = 10
+VI_ITERATIONS = 100
+EM_ITERATIONS = 20
 
 
 def expectationMaximization(corpus, V):
     alpha, beta = EstimateAB.initAlphaBeta(V, NUM_TOPICS_K)
     phi = None
     gamma = None
+    # print("Alpha:", alpha)
 
     for i in range(EM_ITERATIONS):
         print("EM iteration:", i)
@@ -35,10 +36,14 @@ def expectationMaximization(corpus, V):
         timeTaken = time.time()
         # M: EstimateAB
         alpha, beta = EstimateAB.maximizationStep(corpus, V, alpha, beta, phi, NUM_TOPICS_K, gamma)
+        # print("Alpha:", alpha)
         print("Time taken M:", time.time() - timeTaken)
-        accLDA = accuracy(gamma, topics)
 
-        print("Topic Features (LDA): " + str(accLDA))
+        # EstimateAB.getMostPopularWordsPerTopic(beta, NUM_TOPICS_K, vocab)
+
+        accLDA = accuracy(gamma, topics)
+        print("Topic Features (LDA):", accLDA)
+
     return alpha, beta, phi, gamma
 
 
@@ -50,11 +55,12 @@ def estimateParams(vocab, corpus):
 
 if __name__ == '__main__':
     np.random.seed(13)
-    vocab, corpus, topics = PreProcess.preProcess(numFilesToImport=1, loadFromFile=False)
-    # print("ACCURACY")
-    # freqList = PreProcess.generateFreqList(corpus, len(vocab))
-    # acc = accuracy(freqList, topics)
-    # print("Word Features: " + str(acc))
+    vocab, corpus, topics = PreProcess.preProcess(numFilesToImport=1, loadFromFile=False, reuters=True)
+
+    print("ACCURACY")
+    freqList = PreProcess.generateFreqList(corpus, len(vocab))
+    acc = accuracy(freqList, topics)
+    print("Word Features: " + str(acc))
     # only estimate params if this is false, otherwise load old params
     LOAD_PARAMS = False
 

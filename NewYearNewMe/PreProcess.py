@@ -35,8 +35,14 @@ def preProcessStolen(text):
     return result
 
 
+def getTextsAbstracts():
+    documents = pd.read_csv('papers2017.csv', error_bad_lines=False)
+    processed_docs = documents['abstract']
+    return processed_docs
+
+
 # returns dictionary and list of numpy docs where each word is a pointer to the vocab/dict
-def preProcess(numFilesToImport=-1, loadFromFile=False):
+def preProcess(numFilesToImport=-1, loadFromFile=False, reuters=True):
     if loadFromFile:
         print("Loading pre-processed data from hard drive!")
         dictionary = np.load("ProcessedData/vocab.npy", allow_pickle=True)
@@ -44,7 +50,12 @@ def preProcess(numFilesToImport=-1, loadFromFile=False):
         topics = np.load("ProcessedData/topics.npy")
     else:
         print("Pre-processing data!")
-        texts, topics = getTexts(numFilesToImport=numFilesToImport)
+        if reuters:
+            texts, topics = getTexts(numFilesToImport=numFilesToImport)
+        else:
+            texts = getTextsAbstracts()
+            topics = None
+
         preProcessedDocs = []
         for i in range(len(texts)):
             preProcessedDocs.append(preProcessStolen(texts[i]))
@@ -63,7 +74,8 @@ def preProcess(numFilesToImport=-1, loadFromFile=False):
 
         np.save("ProcessedData/vocab", dictionary)
         np.save("ProcessedData/corpus", idxDocs)
-        np.save("ProcessedData/topics", topics)
+        if reuters:
+            np.save("ProcessedData/topics", topics)
 
     print("NumDocs (M):", len(idxDocs))
     print("Vocab Size (V):", len(dictionary))
