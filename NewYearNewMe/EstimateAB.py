@@ -16,18 +16,17 @@ def initAlphaBeta(V, K):
     return alpha, beta
 
 
+'''
 # Might be able to use numpy here =)
 def betaIndex(i, j, phi, corpus):
     M = len(corpus)
     betaSum = 0
 
-    '''
-    for d in range(M):
-        N = corpus[d].size
-        for n in range(N):
-            if corpus[d][n] == j:
-                betaSum += phi[d][n][i]
-    '''
+    #for d in range(M):
+    #     N = corpus[d].size
+    #     for n in range(N):
+    #         if corpus[d][n] == j:
+    #             betaSum += phi[d][n][i]
 
     for d in range(M):
         idxs = np.where(corpus[d] == j)[0]
@@ -53,6 +52,7 @@ def betaIndex(i, j, phi, corpus):
         assert False
 
     return betaSum
+'''
 
 
 # Written in the context of a single document
@@ -91,9 +91,23 @@ def hessian_inverse_gradient(alpha, M, K, gamma):
 def maximizationStep(corpus, V, alpha, beta, phi, K, gamma):
     import time
     timeTaken = time.time()
+    M = len(corpus)
     for i in range(K):
         for j in range(V):
-            beta[i][j] = betaIndex(i, j, phi, corpus)
+
+            betaSum = 0
+            # idxs = np.array([np.where(corpus[d] == j)[0] for d in range(M)])
+            # betaSums = np.sum(phi[:][:, i])
+            # assert False
+
+            for d in range(M):
+                idxs = np.where(corpus[d] == j)[0]
+                # print(idxs)
+                if len(idxs) > 0:
+                    betaSum += np.sum(phi[d][:, i][idxs])
+
+            # assert False
+            beta[i][j] = betaSum
 
     print("BetaTime:", time.time() - timeTaken)
 
