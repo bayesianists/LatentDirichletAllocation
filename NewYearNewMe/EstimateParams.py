@@ -50,7 +50,7 @@ def estimateParams(vocab, corpus):
 
 if __name__ == '__main__':
     np.random.seed(13)
-    vocab, corpus, topics = PreProcess.preProcess(numFilesToImport=1, loadFromFile=True)
+    vocab, corpus, topics = PreProcess.preProcess(numFilesToImport=6, loadFromFile=False)
     print("ACCURACY")
     freqList = PreProcess.generateFreqList(corpus, len(vocab))
     acc = accuracy(freqList, topics)

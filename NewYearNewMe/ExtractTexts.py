@@ -45,7 +45,7 @@ def extract_text(file_name, dirPath):
     soup = BeautifulSoup(data, features="html.parser")
     contents = soup.findAll('reuters')
     for content in contents:
-        if content['topics']:
+        if content['topics'] != "NO":
             topic = content.findAll('topics')
             Ds = topic[0].findAll('d')
             # topicsNew = []
