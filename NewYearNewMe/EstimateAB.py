@@ -72,7 +72,6 @@ def hessian_inverse_gradient(alpha, M, K, gamma):
 
     expected_phi = np.exp(np.mean(sp.digamma(gamma) - np.expand_dims(sp.digamma(np.sum(gamma, axis=1)), 1), axis=0))
 
-
     if alphaSum == 0:
         print("alpha:", alpha)
 
@@ -96,7 +95,7 @@ def maximizationStep(corpus, V, alpha, beta, phi, K, gamma):
         for j in range(V):
             beta[i][j] = betaIndex(i, j, phi, corpus)
 
-    #print("BetaTime:", time.time() - timeTaken)
+    print("BetaTime:", time.time() - timeTaken)
 
     # Paper uses subtraction here, but a student in slack derived that this is incorrect and should be an addition
     alpha = alpha + hessian_inverse_gradient(alpha, len(corpus), K, gamma)

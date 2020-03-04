@@ -16,7 +16,7 @@ def expectationMaximization(corpus, V):
     gamma = None
 
     for i in range(EM_ITERATIONS):
-        #print("EM iteration:", i)
+        print("EM iteration:", i)
         phi = []
         gamma = []
         # E: VI
@@ -31,11 +31,11 @@ def expectationMaximization(corpus, V):
 
             # print(phiDoc)
         gamma = np.array(gamma)
-        #print("Time taken E:", time.time() - timeTaken)
+        print("Time taken E:", time.time() - timeTaken)
         timeTaken = time.time()
         # M: EstimateAB
         alpha, beta = EstimateAB.maximizationStep(corpus, V, alpha, beta, phi, NUM_TOPICS_K,gamma)
-        #print("Time taken M:", time.time() - timeTaken)
+        print("Time taken M:", time.time() - timeTaken)
         accLDA = accuracy(gamma, topics)
 
         print("Topic Features (LDA): " + str(accLDA))
@@ -50,11 +50,11 @@ def estimateParams(vocab, corpus):
 
 if __name__ == '__main__':
     np.random.seed(13)
-    vocab, corpus, topics = PreProcess.preProcess(numFilesToImport=1, loadFromFile=False)
-    print("ACCURACY")
-    freqList = PreProcess.generateFreqList(corpus, len(vocab))
-    acc = accuracy(freqList, topics)
-    print("Word Features: " + str(acc))
+    vocab, corpus, topics = PreProcess.preProcess(numFilesToImport=1, loadFromFile=True)
+    # print("ACCURACY")
+    # freqList = PreProcess.generateFreqList(corpus, len(vocab))
+    # acc = accuracy(freqList, topics)
+    # print("Word Features: " + str(acc))
     # only estimate params if this is false, otherwise load old params
     LOAD_PARAMS = False
 
