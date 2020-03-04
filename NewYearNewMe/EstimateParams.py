@@ -6,8 +6,8 @@ from NewYearNewMe.ExperimentsNew.Classification import accuracy
 from NewYearNewMe import PreProcess, EstimateAB
 
 NUM_TOPICS_K = 8
-VI_ITERATIONS = 20
-EM_ITERATIONS = 10
+VI_ITERATIONS = 50
+EM_ITERATIONS = 20
 
 
 def expectationMaximization(corpus, V):
@@ -51,10 +51,10 @@ def estimateParams(vocab, corpus):
 if __name__ == '__main__':
     np.random.seed(13)
     vocab, corpus, topics = PreProcess.preProcess(numFilesToImport=1, loadFromFile=True)
-    # print("ACCURACY")
-    # freqList = PreProcess.generateFreqList(corpus, len(vocab))
-    # acc = accuracy(freqList, topics)
-    # print("Word Features: " + str(acc))
+    print("ACCURACY")
+    freqList = PreProcess.generateFreqList(corpus, len(vocab))
+    acc = accuracy(freqList, topics)
+    print("Word Features: " + str(acc))
     # only estimate params if this is false, otherwise load old params
     LOAD_PARAMS = False
 

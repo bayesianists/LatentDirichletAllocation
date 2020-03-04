@@ -14,16 +14,21 @@ def inference(alpha, beta, N, doc, K, numIterations):
     t = 0
     while t < numIterations:
         gammaSumDigamma = sp.digamma(np.sum(gamma))
+        # phi = (M, N, K) => (N, K)
         # doc = (1, N)
         # beta = (K, V)
-        # gamma = (1, K)
-        # words = doc[np.arange(N)]
+        # gamma = (M, K) => (1, K)
+        words = doc[np.arange(N)]
         expVec = np.exp(sp.digamma(gamma) - gammaSumDigamma)
-        for n in range(N):
-            word = doc[n]
-            betaVec = beta[:, word]
+        betaMat = beta[:, words]
+        phi = betaMat.T * expVec + 1e-20
+
+        # assert False
+        # for n in range(N):
+            # word = doc[n]
+            # betaVec = beta[:, word]
             # expVec = np.exp(sp.digamma(gamma) - gammaSumDigamma)
-            phi[n] = betaVec * expVec
+            # phi[n] = betaVec * expVec
 
             # for i in range(K):
                 # BETA INDEXING MAY BE A PROBLEM - Smoothing!!!!!!!!
@@ -32,8 +37,16 @@ def inference(alpha, beta, N, doc, K, numIterations):
                     # print("Beta:", beta[i][doc[n]])
                     # print("DiGamma:", np.exp(sp.digamma(gamma[i])))
             # phi[n] /= np.sum(phi[n])
-        phi += 1e-20
+        # phi += 1e-20
+        # phiMat = phiMat / np.expand_dims(np.sum(phiMat, axis=1), 1)  # (153, ) => (153, 1)
         phi = phi / np.expand_dims(np.sum(phi, axis=1), 1)  # (153, ) => (153, 1)
         gamma = alpha + np.sum(phi, axis=0)
         t += 1
+        # print(phiMat[0])
+        # print(phi[0])
+        # dist = np.linalg.norm(phiMat - phi)
+        # dist = np.mean(phiMat - phi)
+        # print(dist)
+        # assert np.array_equal(phiMat, phi)
+        # assert False
     return phi, gamma
