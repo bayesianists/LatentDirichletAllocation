@@ -116,8 +116,40 @@ def maximizationStep(corpus, V, alpha, beta, phi, K, gamma):
     return alpha, beta
 
 
+def normalizeMatrix(mat):
+    return mat / np.expand_dims(np.sum(mat, axis=1), 1)
+
+
+def getTFIDF(beta, K):
+    prod = np.prod(beta, axis=0)
+    products = np.power(prod, (1.0 / K))
+    return beta * np.log(beta / products)
+
+
+def getMostPopularWordsPerTopic(beta, K, vocab):
+    betaNorm = normalizeMatrix(beta)
+    tfidf = getTFIDF(betaNorm, K)
+    # tfidf = betaNorm
+    V = len(tfidf[0])
+
+    tuples = []
+    for i in range(K):
+        tuples.append([(tfidf[i][j], vocab[j]) for j in range(V)])
+
+    # sortedTuples = np.sort(tuples, key=lambda x: x[0], axis=1)
+    for i in range(K):
+        sorted(tuples[i], key=lambda x: x[0])
+        tuples[i] = np.array(tuples[i])
+
+    for i in range(K):
+        print(tuples[i][-10:, 1])
+        print(tuples[i][-10:, 0])
+
+
 if __name__ == '__main__':
-    testList = np.array(["ab", "lol", "sup"])
-    print(testList[0])
-    print(testList[[0, 1]])
-    print(testList[[0]])
+    testArr = np.ones((5, 3)) * np.arange(1, 4) * 72
+    testArr[0][1] += 100
+    testArr = normalizeMatrix(testArr)
+    print(testArr)
+    tfidf = getTFIDF(testArr, len(testArr))
+    print(tfidf)

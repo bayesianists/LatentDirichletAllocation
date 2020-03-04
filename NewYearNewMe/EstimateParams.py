@@ -6,8 +6,8 @@ from NewYearNewMe.ExperimentsNew.Classification import accuracy
 from NewYearNewMe import PreProcess, EstimateAB
 
 NUM_TOPICS_K = 8
-VI_ITERATIONS = 1
-EM_ITERATIONS = 20
+VI_ITERATIONS = 75
+EM_ITERATIONS = 1
 
 
 def expectationMaximization(corpus, V):
@@ -75,5 +75,5 @@ if __name__ == '__main__':
     # Data and parameters are ready to be used for experiments beneath!
 
     print("--------")
-
+    EstimateAB.getMostPopularWordsPerTopic(b, NUM_TOPICS_K, vocab)
     gamma = np.array(gamma)
