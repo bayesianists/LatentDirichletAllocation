@@ -7,6 +7,7 @@ import pandas as pd
 
 from bs4 import BeautifulSoup
 
+#Youssef
 dir_path = os.path.dirname(os.path.realpath(__file__))
 current_path = dir_path + '/../reuters21578/'
 if sys.version_info[0] < 3 or True:
@@ -14,22 +15,11 @@ if sys.version_info[0] < 3 or True:
 else:
     directory = os.fsencode(current_path)
 
-'''
-class Document:
-
-    def __init__(self, topics, text):
-        self.topics = topics
-        self.text = text
-
-    def __str__(self):
-        return str("TOPICS:" + "\n" + str(self.topics) + "\n" + self.text)
-'''
-
-
+#Joey
 def removeSpecial(doc):
     return re.sub('[^A-Za-z]+', ' ', doc)
 
-
+#Joey
 def extract_text(file_name, dirPath):
     """
     Goes through .sgm file and extracts all bodies of text along with the corresponding topics
@@ -49,23 +39,20 @@ def extract_text(file_name, dirPath):
         if content['topics'] != "NO":
             topic = content.findAll('topics')
             Ds = topic[0].findAll('d')
-            # topicsNew = []
             tBin = 0
             for d in Ds:  # Iterating through topics for specific document
                 if d.text == "earn":
                     tBin = 1
-                # topicsNew.append(d.text)
 
             textBody = content.findAll('body')
             if len(textBody) == 1:
                 text = textBody[0].text  # The actual document (in textform, needs to be converted into BoW)
-                # documents.append(Document(topics, text))
                 texts.append(removeSpecial(text))
                 topics.append(tBin)
 
     return texts, topics
 
-
+#Youssef
 def getTexts(numFilesToImport=-1):
     """
     :return: List of Document objects
@@ -73,9 +60,7 @@ def getTexts(numFilesToImport=-1):
     texts = []
     topics = []
     i = 0
-    # print(directory)
     for file in os.listdir(directory)[0:numFilesToImport]:
-        # print(file)
         i += 1
         if sys.version_info[0] < 3:
             filename = file

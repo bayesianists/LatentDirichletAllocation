@@ -9,24 +9,20 @@ from nltk.stem import WordNetLemmatizer, SnowballStemmer
 from nltk.corpus import stopwords
 from nltk.stem.porter import *
 
-# KTH-kollega
 from NewYearNewMe.ExtractTexts import getTexts
 
 stemmer = SnowballStemmer('english')
 
-# Uncomment this the first time you run it!
-# nltk.download('wordnet')
-# nltk.download('stopwords')
 
-# Youssef
+
 stop = stopwords.words('english')
 
-
+#Joey
 # lemmatizing and stemming
 def lem_stem(text):
     return stemmer.stem(WordNetLemmatizer().lemmatize(text, pos='v'))
 
-
+#Joey
 def preProcessStolen(text):
     result = []
     for token in gensim.utils.simple_preprocess(text):
@@ -34,13 +30,13 @@ def preProcessStolen(text):
             result.append(lem_stem(token))
     return result
 
-
+#Adrian
 def getTextsAbstracts():
     documents = pd.read_csv('papers2017.csv', error_bad_lines=False)
     processed_docs = documents['abstract']
     return processed_docs
 
-
+#Joey
 # returns dictionary and list of numpy docs where each word is a pointer to the vocab/dict
 def preProcess(numFilesToImport=-1, loadFromFile=False, reuters=True):
     if loadFromFile:
@@ -63,10 +59,7 @@ def preProcess(numFilesToImport=-1, loadFromFile=False, reuters=True):
         # Create a dictionary
         dictionary = gensim.corpora.Dictionary(preProcessedDocs)
         dictionary.filter_extremes(no_below=10, no_above=0.5)
-        # bowCorpus = [dictionary.doc2bow(doc) for doc in preProcessedDocs]
-        # svmRawData = [dictionary.doc2idx(doc) for doc in preProcessedDocs]
-        # for i, doc in enumerate(preProcessedDocs):
-        #     svmRawData[i] = [0 if w == -1 else w for w in doc]
+
         if sys.version_info[0] < 3:
             idxDocs = [np.array(filter(lambda a: a != -1, dictionary.doc2idx(doc))) for doc in preProcessedDocs]
         else:
@@ -83,7 +76,7 @@ def preProcess(numFilesToImport=-1, loadFromFile=False, reuters=True):
 
     return dictionary, idxDocs, topics
 
-
+#Youssef
 def generateFreqList(corpus, V):
     M = len(corpus)
     docFreqs = np.zeros((M, V))

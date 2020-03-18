@@ -1,13 +1,13 @@
 import numpy as np
 import scipy.special as sp
 
-
+#Youssef
 def initializeDoc(alpha, N, K):
     phi = np.ones((N, K)) / K
     gamma = alpha + N / K
     return phi, gamma
 
-
+#Youssef & Joey
 # Context of one document, phi is 2D-Matrix and gamma is vector
 def inference(alpha, beta, N, doc, K, numIterations, gammaPrev):
     phi, gamma = initializeDoc(alpha, N, K)
@@ -30,7 +30,6 @@ def inference(alpha, beta, N, doc, K, numIterations, gammaPrev):
             betaMat = beta[:, words]  # (K, N)
             phi = betaMat.T * expVec + 1e-100  # (N, K) * (1, K) + (1, 1) = (N, K) + (N, K) = (N, K)
 
-            # assert False
             # for n in range(N):
                 # word = doc[n]
                 # betaVec = beta[:, word]
@@ -44,18 +43,11 @@ def inference(alpha, beta, N, doc, K, numIterations, gammaPrev):
                         # print("Beta:", beta[i][doc[n]])
                         # print("DiGamma:", np.exp(sp.digamma(gamma[i])))
                 # phi[n] /= np.sum(phi[n])
-            # phi += 1e-20
             # phiMat = phiMat / np.expand_dims(np.sum(phiMat, axis=1), 1)  # (153, ) => (153, 1)
             phi = phi / np.expand_dims(np.sum(phi, axis=1), 1)  # (153, ) => (153, 1)
             gamma = alpha + np.sum(phi, axis=0)
             t += 1
-            # print(phiMat[0])
-            # print(phi[0])
-            # dist = np.linalg.norm(phiMat - phi)
-            # dist = np.mean(phiMat - phi)
-            # print(dist)
-            # assert np.array_equal(phiMat, phi)
-            # assert False
+
         '''
         diffGamma = np.sum(np.abs(gamma - gammaPrev))
         diffPhi = np.sum(np.abs(phi - phiPrev))
@@ -63,5 +55,4 @@ def inference(alpha, beta, N, doc, K, numIterations, gammaPrev):
         gammaPrev = gamma
         phiPrev = phi
         '''
-    # print("alphaPartOfGammaAvg:", np.mean(alpha / gamma))
     return phi, gamma
