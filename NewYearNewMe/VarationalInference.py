@@ -11,10 +11,12 @@ def initializeDoc(alpha, N, K):
 # Context of one document, phi is 2D-Matrix and gamma is vector
 def inference(alpha, beta, N, doc, K, numIterations, gammaPrev):
     phi, gamma = initializeDoc(alpha, N, K)
-    if gammaPrev is not None:
-        gamma = gammaPrev
+    # if gammaPrev is not None:
+    #     gamma = gammaPrev
 
     t = 0
+    gammaPrev = gamma
+    phiPrev = phi
     while t < numIterations:
         gammaSumDigamma = sp.digamma(np.sum(gamma))
         # phi = (M, N, K) => (N, K)
@@ -54,4 +56,12 @@ def inference(alpha, beta, N, doc, K, numIterations, gammaPrev):
             # print(dist)
             # assert np.array_equal(phiMat, phi)
             # assert False
+        '''
+        diffGamma = np.sum(np.abs(gamma - gammaPrev))
+        diffPhi = np.sum(np.abs(phi - phiPrev))
+        print(t, diffGamma, diffPhi)
+        gammaPrev = gamma
+        phiPrev = phi
+        '''
+    # print("alphaPartOfGammaAvg:", np.mean(alpha / gamma))
     return phi, gamma

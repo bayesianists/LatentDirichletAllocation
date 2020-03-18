@@ -5,8 +5,8 @@ import NewYearNewMe.VarationalInference as VI
 from NewYearNewMe.ExperimentsNew.Classification import accuracy
 from NewYearNewMe import PreProcess, EstimateAB
 
-NUM_TOPICS_K = 10
-VI_ITERATIONS = 100
+NUM_TOPICS_K = 25
+VI_ITERATIONS = 250
 EM_ITERATIONS = 50
 
 
@@ -14,6 +14,8 @@ def expectationMaximization(corpus, V):
     alpha, beta = EstimateAB.initAlphaBeta(V, NUM_TOPICS_K)
     phi = None
     gamma = []
+    phiPrev = None
+    gammaPrev = None
     # print("Alpha:", alpha)
 
     for i in range(EM_ITERATIONS):
@@ -32,7 +34,8 @@ def expectationMaximization(corpus, V):
             gamma[idx] = gammaDoc
 
             # print(phiDoc)
-        gamma = np.array(gamma)
+
+        # print("Shape:", np.array(phi).shape)
         print("Time taken E:", time.time() - timeTaken)
         timeTaken = time.time()
         # M: EstimateAB
@@ -44,6 +47,23 @@ def expectationMaximization(corpus, V):
 
         # accLDA = accuracy(gamma, topics)
         # print("Topic Features (LDA):", accLDA)
+
+        # gamma = np.array(gamma)
+        # phi = np.array(phi)
+        # print(np.mean(np.abs(np.std(gamma, axis=0))))
+        '''
+        if phiPrev is not None:
+            diffGamma = np.sum(np.abs(gamma - gammaPrev))
+            phiSum = 0
+            for j in range(len(corpus)):
+                phiSum += np.sum(np.abs(phi[j] - phiPrev[j]))
+            print(i, diffGamma, phiSum)
+
+        phiPrev = phi
+        gammaPrev = np.copy(gamma)
+        print(alpha)
+        print(np.random.dirichlet(alpha, 10))
+        '''
 
     return alpha, beta, phi, gamma
 
@@ -84,3 +104,9 @@ if __name__ == '__main__':
     print("--------")
     EstimateAB.getMostPopularWordsPerTopic(b, NUM_TOPICS_K, vocab)
     gamma = np.array(gamma)
+
+
+'''
+
+
+'''
