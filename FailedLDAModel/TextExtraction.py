@@ -90,7 +90,7 @@ def write_list_to_file(dictionary, maxint=1000):
     :return: nothing
     """
     maxint -= 1
-    f = open("vocabulary.txt", "w")
+    f = open("../vocabulary.txt", "w")
     i = 0
     for word, frequency in sorted(dictionary.items(), key=lambda x: x[1], reverse=True):
         if i > maxint:
@@ -116,7 +116,7 @@ def get_vocab():
     """
     :return: Vocabulary as a vector of words
     """
-    with open('vocabulary.txt') as f:
+    with open('../vocabulary.txt') as f:
         lines = [line.rstrip() for line in f]
         return lines
 

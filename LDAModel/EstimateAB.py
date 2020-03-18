@@ -1,22 +1,21 @@
 import numpy as np
 import scipy.special as sp
 
+#  Everyone worked on this part
+
 
 # once for each document
-#Adrian
 def initBeta(V, K):
     eta = np.ones(V)
     beta = np.random.dirichlet(eta, K)
     return beta
     # return np.ones((K, V)) / V
 
-#Adrian
 def initAlphaBeta(V, K):
     alpha = np.array([1.0] * K)
     beta = initBeta(V, K)
     return alpha, beta
 
-#Joey
 '''
 # Might be able to use numpy here =)
 def betaIndex(i, j, phi, corpus):
@@ -59,7 +58,6 @@ def betaIndex(i, j, phi, corpus):
 # Written in the context of a single document
 # Uses natural logarithm
 # Maybe try some other logarithm
-#Adrian
 def gradient_k(alpha_k, alpha_sum, M, log_exp_phi):
     if alpha_sum == 0:
         print ("ALPHASUM IS 0")
@@ -69,7 +67,6 @@ def gradient_k(alpha_k, alpha_sum, M, log_exp_phi):
         print ("EXP_PHI IS 0")
     return M * (sp.digamma(alpha_sum) - sp.digamma(alpha_k) + log_exp_phi)  # np.log(alpha_k / alpha_sum))
 
-#Joey
 def hessian_inverse_gradient(alpha, M, K, gamma):
     alphaSum = np.sum(alpha)
     z = M * sp.polygamma(1, alphaSum)  # c
@@ -102,7 +99,6 @@ def hessian_inverse_gradient(alpha, M, K, gamma):
 
     return (gradient - b) / Q
 
-#Adrian
 def maximizationStep(corpus, V, alpha, beta, phi, K, gamma):
 
     # Paper uses subtraction here, but a student in slack derived that this is incorrect and should be an addition
@@ -130,17 +126,19 @@ def maximizationStep(corpus, V, alpha, beta, phi, K, gamma):
 
     return alpha, beta
 
-#Youssef
 def normalizeMatrix(mat):
     return mat / np.expand_dims(np.sum(mat, axis=1), 1)
 
-#Youssef
+
+
+
+# YOUSSEF
+
 def getTFIDF(beta, K):
     prod = np.prod(beta, axis=0)
     products = np.power(prod, (1.0 / K))
     return beta * np.log(beta / products)
 
-#Youssef
 def getMostPopularWordsPerTopic(beta, K, vocab):
     betaNorm = normalizeMatrix(beta)
     tfidf = getTFIDF(betaNorm, K)

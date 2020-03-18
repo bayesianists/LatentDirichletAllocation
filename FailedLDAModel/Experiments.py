@@ -1,9 +1,8 @@
 import re
 
-import VI
 import numpy as np
 from sklearn import svm
-import TextExtraction as te
+from FailedLDAModel import TextExtraction as te
 from nltk.corpus import stopwords
 
 stop = stopwords.words('english')

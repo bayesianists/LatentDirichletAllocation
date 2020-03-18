@@ -1,13 +1,14 @@
 import numpy as np
 import scipy.special as sp
 
-#Youssef
+# Everyone worked on this part
+
+
 def initializeDoc(alpha, N, K):
     phi = np.ones((N, K)) / K
     gamma = alpha + N / K
     return phi, gamma
 
-#Youssef & Joey
 # Context of one document, phi is 2D-Matrix and gamma is vector
 def inference(alpha, beta, N, doc, K, numIterations, gammaPrev):
     phi, gamma = initializeDoc(alpha, N, K)

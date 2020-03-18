@@ -1,6 +1,6 @@
 import numpy as np
 # import TextExtraction
-from TextExtraction import get_vocab, make_corpus, one_hot_to_string
+from FailedLDAModel.TextExtraction import get_vocab, make_corpus, one_hot_to_string
 import scipy.special as sp
 
 """Contains the implemented Variational Inference algorithm for LDA and associated functions"""

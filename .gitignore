@@ -138,6 +138,6 @@ dmypy.json
 numpyCorpus.npy
 params.npy
 
-NewYearNewMe/Parameters/
+LDAModel/Parameters/
 
-NewYearNewMe/ProcessedData/
+LDAModel/ProcessedData/
